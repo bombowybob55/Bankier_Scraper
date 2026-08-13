@@ -3,8 +3,9 @@ __pycache__/
 .DS_Store
 *.pyc
 logs/
+# Reports/Sentiment/ is intentionally tracked: it's the Sentiment Pulse
+# chart's only history across CI runs (each run starts from a fresh checkout).
 Reports/Technical/
-Reports/Sentiment/
 Reports/Fundamental/
 Reports/Combined/
 Reports/Macro/
