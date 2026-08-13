@@ -30,6 +30,9 @@ REPORTS_DIR = BASE_DIR / "Reports"
 SENTIMENT_DIR = REPORTS_DIR / "Sentiment"
 TECH_DIR = REPORTS_DIR / "Technical"
 COMBINED_DIR = REPORTS_DIR / "Combined"
+MACRO_DIR = REPORTS_DIR / "Macro"
+ALERTS_DIR = REPORTS_DIR / "Alerts"
+FUNDAMENTAL_DIR = REPORTS_DIR / "Fundamental"
 
 DATE_RE = re.compile(r"(\d{8})_(\d{6})")
 
@@ -464,6 +467,288 @@ def fmt_num(val, digits=2):
         return str(val)
 
 
+# ---------------------------------------------------------------------------
+# MACRO SNAPSHOT
+# ---------------------------------------------------------------------------
+
+def load_macro_snapshot() -> dict:
+    """Wczytuje najnowszy plik macro_snapshot_*.json."""
+    files = list(MACRO_DIR.glob("macro_snapshot_*.json"))
+    if not files:
+        return {}
+    latest = max(files, key=lambda p: p.stat().st_mtime)
+    try:
+        with latest.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+
+def _macro_item_html(label: str, data: dict) -> str:
+    """Renderuje jeden kafelek Macro Pulse."""
+    price = data.get("price")
+    chg   = data.get("change_pct")
+    if price is None:
+        return ""
+    chg_val  = chg if chg is not None else 0.0
+    arrow    = "&#9650;" if chg_val >= 0 else "&#9660;"
+    color    = "var(--green)" if chg_val >= 0 else "var(--red)"
+    chg_abs  = abs(chg_val)
+    # format price: FX 4 digits, indices integers, commodities 2
+    if price >= 1000:
+        price_str = f"{price:,.0f}"
+    elif price >= 10:
+        price_str = f"{price:.2f}"
+    else:
+        price_str = f"{price:.4f}"
+
+    return (
+        f'<div class="macro-item">'
+        f'<span class="macro-label">{esc(label)}</span>'
+        f'<span class="macro-price">{esc(price_str)}</span>'
+        f'<span class="macro-chg" style="color:{color}">{arrow} {chg_abs:.2f}%</span>'
+        f'</div>'
+    )
+
+
+def build_macro_pulse_html(snapshot: dict) -> str:
+    """Buduje HTML sekcji Macro Pulse."""
+    if not snapshot:
+        return ""
+    generated = snapshot.get("generated_at", "")
+    nbp_rate = snapshot.get("nbp", {}).get("reference_rate", {}).get("rate")
+    nbp_str  = f"NBP {nbp_rate}%" if nbp_rate else ""
+
+    LABELS = {
+        # Indeksy
+        "WIG20": "WIG20", "DAX": "DAX", "SP500": "S&P500",
+        "NASDAQ": "NASDAQ", "DJIA": "DJIA",
+        # FX
+        "EURPLN": "EUR/PLN", "USDPLN": "USD/PLN", "CHFPLN": "CHF/PLN",
+        # Surowce
+        "GOLD": "Złoto", "OIL_WTI": "Ropa WTI", "COPPER": "Miedź",
+        # Obligacje
+        "US10Y": "US 10Y",
+    }
+
+    items = []
+    for key, label in LABELS.items():
+        for cat in ("indices", "fx", "commodities", "bonds"):
+            data = snapshot.get(cat, {}).get(key)
+            if data:
+                items.append(_macro_item_html(label, data))
+                break
+
+    if not items:
+        return ""
+
+    items_html = "".join(items)
+    return f"""
+  <div class="macro-pulse reveal" id="macro">
+    <div class="macro-header">
+      <span class="macro-title">Macro Pulse</span>
+      <span class="macro-ts">Aktualizacja: {esc(generated)}{' · ' + nbp_str if nbp_str else ''}</span>
+    </div>
+    <div class="macro-track">{items_html}</div>
+  </div>"""
+
+
+# ---------------------------------------------------------------------------
+# ALERTS
+# ---------------------------------------------------------------------------
+
+def load_alerts_data() -> list:
+    """Wczytuje najnowszy plik alerts_*.json."""
+    files = list(ALERTS_DIR.glob("alerts_*.json"))
+    if not files:
+        return []
+    latest = max(files, key=lambda p: p.stat().st_mtime)
+    try:
+        with latest.open("r", encoding="utf-8") as f:
+            payload = json.load(f)
+            return payload.get("alerts", [])
+    except Exception:
+        return []
+
+
+SIGNAL_CLASSES = {"buy": "alert-buy", "sell": "alert-sell", "watch": "alert-watch"}
+SIGNAL_LABELS  = {"buy": "KUP", "sell": "SPRZEDAJ", "watch": "OBSERWUJ"}
+SEVERITY_ICON  = {"high": "&#128293;", "medium": "&#9888;", "low": "&#8505;"}
+
+
+# ---------------------------------------------------------------------------
+# FUNDAMENTY GPW
+# ---------------------------------------------------------------------------
+
+def load_fundamentals_gpw() -> list:
+    """Wczytuje najnowszy plik gpw_fundamentals_*.csv."""
+    files = list(FUNDAMENTAL_DIR.glob("gpw_fundamentals_*.csv"))
+    if not files:
+        return []
+    latest = max(files, key=lambda p: p.stat().st_mtime)
+    try:
+        import csv as _csv
+        rows = []
+        with latest.open("r", encoding="utf-8", errors="replace", newline="") as f:
+            reader = _csv.DictReader(f)
+            for row in reader:
+                rows.append(row)
+        return rows
+    except Exception:
+        return []
+
+
+def _fmt_fundamental(val, suffix="", digits=1, scale=1.0, fallback="-"):
+    """Formatuje wartość fundamentalna do wyświetlenia."""
+    if val is None or str(val).strip() in ("", "None", "nan"):
+        return fallback
+    try:
+        f = float(val) * scale
+        return f"{f:.{digits}f}{suffix}"
+    except Exception:
+        return fallback
+
+
+def build_fundamentals_html(rows: list) -> str:
+    """Buduje HTML sekcji Fundamenty GPW."""
+    if not rows:
+        return '<div class="chart-empty">Brak danych. Uruchom fundaments_gpw.py aby pobrać fundamenty.</div>'
+
+    # Posortuj wg fundamental_score malejąco
+    def score(r):
+        try: return float(r.get("fundamental_score", 0))
+        except: return 0
+    rows_sorted = sorted(rows, key=score, reverse=True)
+
+    # Top 10 wg najniższego P/E (z posiadających P/E)
+    rows_with_pe = [r for r in rows if _fmt_fundamental(r.get("pe_trailing")) != "-"]
+    top_pe = sorted(rows_with_pe, key=lambda r: float(r.get("pe_trailing", 999)))[:10]
+
+    # Top 10 dywidendowe
+    rows_with_div = [r for r in rows if _fmt_fundamental(r.get("div_yield_pct")) != "-" and float(r.get("div_yield_pct", 0)) > 0]
+    top_div = sorted(rows_with_div, key=lambda r: float(r.get("div_yield_pct", 0)), reverse=True)[:10]
+
+    def label_class(label: str) -> str:
+        l = label.lower()
+        if "nied" in l: return "bullish"
+        if "atrak" in l: return "bullish"
+        if "neutraln" in l: return "neutral"
+        return "bearish"
+
+    def pe_row(r):
+        pe  = _fmt_fundamental(r.get("pe_trailing"), digits=1)
+        pe_f = _fmt_fundamental(r.get("pe_forward"), digits=1)
+        roe  = _fmt_fundamental(r.get("roe_pct"), suffix="%", digits=1)
+        div  = _fmt_fundamental(r.get("div_yield_pct"), suffix="%", digits=2, scale=0.01)
+        pb   = _fmt_fundamental(r.get("p_bv"), digits=2)
+        lbl  = r.get("fundamental_label", "")
+        cls  = label_class(lbl)
+        return (
+            f'<tr>'
+            f'<td><strong>{esc(r.get("ticker",""))}</strong></td>'
+            f'<td>{esc(r.get("name",""))}</td>'
+            f'<td>{esc(r.get("index",""))}</td>'
+            f'<td>{pe}</td><td>{pe_f}</td>'
+            f'<td>{div}</td><td>{roe}</td><td>{pb}</td>'
+            f'<td><span class="pill {cls}">{esc(lbl)}</span></td>'
+            f'</tr>'
+        )
+
+    def div_row(r):
+        pe   = _fmt_fundamental(r.get("pe_trailing"), digits=1)
+        div  = _fmt_fundamental(r.get("div_yield_pct"), suffix="%", digits=2, scale=0.01)
+        roe  = _fmt_fundamental(r.get("roe_pct"), suffix="%", digits=1)
+        mc   = _fmt_fundamental(r.get("market_cap_m"), suffix=" mln PLN", digits=0)
+        return (
+            f'<tr>'
+            f'<td><strong>{esc(r.get("ticker",""))}</strong></td>'
+            f'<td>{esc(r.get("name",""))}</td>'
+            f'<td>{div}</td>'
+            f'<td>{pe}</td><td>{roe}</td><td>{mc}</td>'
+            f'</tr>'
+        )
+
+    pe_thead = '<tr><th>Ticker</th><th>Spółka</th><th>Indeks</th><th>P/E</th><th>P/E fwd</th><th>Dywidenda</th><th>ROE</th><th>P/BV</th><th>Ocena</th></tr>'
+    div_thead = '<tr><th>Ticker</th><th>Spółka</th><th>Dywidenda %</th><th>P/E</th><th>ROE</th><th>Kapitalizacja</th></tr>'
+
+    pe_rows_html  = "".join(pe_row(r) for r in top_pe)
+    div_rows_html = "".join(div_row(r) for r in top_div)
+
+    # Podsumowanie stat
+    total = len(rows)
+    cheap = sum(1 for r in rows if _fmt_fundamental(r.get("pe_trailing")) != "-" and float(r.get("pe_trailing", 99)) < 15)
+    paying_div = len(rows_with_div)
+    avg_roe_vals = [float(r.get("roe_pct", 0)) for r in rows if _fmt_fundamental(r.get("roe_pct")) != "-"]
+    avg_roe = round(sum(avg_roe_vals) / len(avg_roe_vals), 1) if avg_roe_vals else 0
+
+    return f"""  <div class=\"stat-grid\">
+    <div class=\"stat-card\"><div class=\"label\">Spółek</div><div class=\"value\">{total}</div></div>
+    <div class=\"stat-card\"><div class=\"label\">P/E < 15 (tanie)</div><div class=\"value\">{cheap}</div></div>
+    <div class=\"stat-card\"><div class=\"label\">Wypłaca dywidendę</div><div class=\"value\">{paying_div}</div></div>
+    <div class=\"stat-card\"><div class=\"label\">Avg ROE</div><div class=\"value\">{avg_roe}%</div></div>
+  </div>
+  <div class=\"grid-2\" style=\"margin-top:18px;\">
+    <div>
+      <h3>Top 10 wg P/E (najtańsze)</h3>
+      <div class=\"table-wrap\">
+        <table><thead>{pe_thead}</thead><tbody>{pe_rows_html}</tbody></table>
+      </div>
+    </div>
+    <div>
+      <h3>Top 10 Dywidendowe</h3>
+      <div class=\"table-wrap\">
+        <table><thead>{div_thead}</thead><tbody>{div_rows_html}</tbody></table>
+      </div>
+    </div>
+  </div>"""
+
+
+def build_alerts_html(alerts: list) -> str:
+    """Buduje HTML sekcji Alertów Technicznych."""
+    if not alerts:
+        return '<div class="chart-empty">Brak alertów. Uruchom alerts.py lub brak danych historycznych.</div>'
+
+    rows = []
+    for a in alerts[:40]:  # max 40 na stronie
+        sig   = a.get("signal", "watch")
+        sev   = a.get("severity", "low")
+        cls   = SIGNAL_CLASSES.get(sig, "alert-watch")
+        icon  = SEVERITY_ICON.get(sev, "")
+        badge = SIGNAL_LABELS.get(sig, sig.upper())
+        rsi   = a.get("rsi")
+        rsi_s = f"{rsi:.1f}" if rsi is not None else "-"
+        price = a.get("price")
+        price_s = f"{price:.2f}" if price is not None else "-"
+        mkt   = a.get("market", "")
+        rows.append(
+            f'<tr class="{cls}">'
+            f'<td>{icon} {esc(a.get("ticker",""))}</td>'
+            f'<td><span class="mkt-badge">{esc(mkt)}</span></td>'
+            f'<td>{esc(a.get("label",""))}</td>'
+            f'<td><span class="pill {sig}">{badge}</span></td>'
+            f'<td>{rsi_s}</td>'
+            f'<td>{price_s}</td>'
+            f'<td>{esc(a.get("date",""))}</td>'
+            f'</tr>'
+        )
+
+    body = "".join(rows)
+    return f"""<div class="table-wrap">
+  <table class="sortable-table" id="alertsTable">
+    <thead><tr>
+      <th data-col="0">Ticker</th>
+      <th data-col="1">Rynek</th>
+      <th data-col="2">Sygnał</th>
+      <th data-col="3">Rekomendacja</th>
+      <th data-col="4">RSI</th>
+      <th data-col="5">Cena</th>
+      <th data-col="6">Data</th>
+    </tr></thead>
+    <tbody>{body}</tbody>
+  </table>
+</div>"""
+
+
 def render_table(headers, rows):
     thead = "".join(f"<th>{esc(h)}</th>" for h in headers)
     body_rows = []
@@ -526,6 +811,9 @@ def build_html(
     sentiment_report_dt,
     tech_pl_report_dt,
     tech_zagr_report_dt,
+    macro_snapshot=None,
+    alerts_data=None,
+    fundamentals_data=None,
 ):
     def fmt_dt(dt):
         return dt.strftime("%Y-%m-%d %H:%M:%S") if dt else "-"
@@ -534,6 +822,17 @@ def build_html(
     tech_pl_updated = fmt_dt(tech_pl_report_dt)
     tech_zagr_updated = fmt_dt(tech_zagr_report_dt)
     forum_updated_display = forum_updated or "-"
+
+    # Macro Pulse + Alerty
+    macro_snapshot = macro_snapshot or {}
+    alerts_data    = alerts_data    or []
+    macro_pulse_html = build_macro_pulse_html(macro_snapshot)
+    alerts_count     = len(alerts_data)
+    alerts_high      = sum(1 for a in alerts_data if a.get("severity") == "high")
+    alerts_html_body = build_alerts_html(alerts_data)
+    fundamentals_data  = fundamentals_data or []
+    fundamentals_html  = build_fundamentals_html(fundamentals_data)
+    num_fundamentals   = len(fundamentals_data)
 
     hero_tickers = [
         t.get("ticker") for t in (tech_pl_top_up[:5] + tech_zagr_top_up[:5]) if t.get("ticker")
@@ -621,6 +920,11 @@ def build_html(
 
     ticker_tape = " ".join([f"<span>{esc(t)}</span>" for t in hero_tickers])
     timeline_json = json.dumps(sentiment_timeline)
+    alerts_json   = json.dumps([
+        {"ticker": a.get("ticker", ""), "signal": a.get("signal", ""),
+         "severity": a.get("severity", ""), "type": a.get("type", "")}
+        for a in alerts_data
+    ])
 
     combined_table = ""
     if combined_headers and combined_rows:
@@ -673,6 +977,148 @@ def build_html(
       --red: #ef4444;
       --amber: #f59e0b;
       --meme: #facc15;
+    }}
+
+    /* === MACRO PULSE === */
+    .macro-pulse {{
+      max-width: 1280px;
+      margin: 14px auto 0;
+      padding: 0 32px;
+    }}
+    .macro-header {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }}
+    .macro-title {{
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }}
+    .macro-ts {{
+      font-size: 11px;
+      color: var(--muted);
+    }}
+    .macro-track {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }}
+    .macro-item {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 12px;
+      padding: 8px 14px;
+      min-width: 90px;
+      transition: border-color 0.2s;
+    }}
+    .macro-item:hover {{ border-color: rgba(56, 189, 248, 0.55); }}
+    .macro-label {{
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }}
+    .macro-price {{
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }}
+    .macro-chg {{
+      font-size: 11px;
+      margin-top: 2px;
+    }}
+
+    /* === ALERTY === */
+    .alert-count-badge {{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: var(--red);
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 4px 10px;
+      margin-left: 12px;
+      letter-spacing: 1px;
+    }}
+    tr.alert-buy   {{ background: rgba(34,197,94,0.06); }}
+    tr.alert-sell  {{ background: rgba(239,68,68,0.06); }}
+    tr.alert-watch {{ background: rgba(245,158,11,0.04); }}
+    .pill.buy   {{ background: rgba(34,197,94,0.15);  color: var(--green); border-color: rgba(34,197,94,0.4); }}
+    .pill.sell  {{ background: rgba(239,68,68,0.15);  color: var(--red);   border-color: rgba(239,68,68,0.4); }}
+    .pill.watch {{ background: rgba(245,158,11,0.15); color: var(--amber); border-color: rgba(245,158,11,0.4); }}
+    .mkt-badge {{
+      font-size: 10px;
+      background: rgba(56,189,248,0.1);
+      border: 1px solid rgba(56,189,248,0.3);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 2px 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }}
+
+    /* === ZAKŁADKI SEKTOROWE === */
+    .tabs {{
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }}
+    .tab-btn {{
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.35);
+      background: rgba(56,189,248,0.08);
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: 0.2s;
+    }}
+    .tab-btn:hover, .tab-btn.active {{
+      background: rgba(56,189,248,0.2);
+      border-color: var(--accent);
+      color: var(--text);
+    }}
+    .tab-panel {{ display: none; }}
+    .tab-panel.active {{ display: block; }}
+
+    /* === SORTOWANIE === */
+    th.sortable {{
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }}
+    th.sortable:hover {{ color: var(--accent); }}
+    th.sort-asc::after  {{ content: ' ▲'; color: var(--accent); }}
+    th.sort-desc::after {{ content: ' ▼'; color: var(--accent); }}
+
+    /* === REFRESH COUNTDOWN === */
+    .refresh-bar {{
+      position: fixed;
+      bottom: 12px;
+      right: 20px;
+      background: rgba(15,23,42,0.88);
+      border: 1px solid rgba(56,189,248,0.3);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      z-index: 99;
+      backdrop-filter: blur(8px);
     }}
 
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
@@ -1182,20 +1628,25 @@ def build_html(
     @media (max-width: 960px) {{
       .nav {{ flex-direction: column; gap: 10px; }}
       .nav-links {{ flex-wrap: wrap; justify-content: center; }}
+      .macro-track {{ gap: 6px; }}
+      .macro-item {{ min-width: 70px; padding: 6px 10px; }}
     }}
   </style>
 </head>
 <body>
   <header>
     <div class=\"nav\">
-      <div class=\"logo\">Swetrowo</div>
+      <div class=\"logo\">Swetrowo <span style=\"font-size:13px;color:var(--accent);letter-spacing:1px;\">Market Brief</span></div>
       <nav class=\"nav-links\">
+        <a href=\"#macro\">Makro</a>
+        <a href=\"#alerts\">Alerty</a>
+        <a href=\"#fundamentals\">Fundamenty</a>
         <a href=\"#sentiment\">Sentyment</a>
-        <a href=\"#tech-pl\">Techniczne PL</a>
-        <a href=\"#tech-global\">Techniczne Global</a>
+        <a href=\"#tech-markets\">Techniczne</a>
       </nav>
     </div>
   </header>
+  {macro_pulse_html}
 
   <section class=\"hero\">
     <div class=\"ticker-strip reveal\">
@@ -1222,7 +1673,7 @@ def build_html(
       <div class=\"chart-header\">
         <div>
           <div class=\"chart-title\">Sentiment Pulse</div>
-          <div class=\"chart-sub\">Ostatnie raporty (BULL / BEAR / NEUTRAL)</div>
+          <div class=\"chart-sub\">Liczba spółek wg sentymentu w czasie (BULL / BEAR / NEUTRAL)</div>
         </div>
         <div class=\"chart-legend\">
           <span class=\"legend-item\"><span class=\"legend-dot bullish\"></span>Bullish</span>
@@ -1259,7 +1710,21 @@ def build_html(
     </div>
   </section>
 
+  <div class="refresh-bar" id="refreshBar">&#128337; Odświeżenie za: <span id="countdownVal">5:00</span></div>
+
   <main>
+    <section id=\"alerts\" class=\"reveal\">
+      <h2>Alerty Techniczne <span class=\"alert-count-badge\">{alerts_high} &uarr; WYSOKICH &middot; {alerts_count} łącznie</span></h2>
+      <p>RSI ekstremalne, Golden/Death Cross, skoki wolumenu, 52-tygodniowe szczyty/dółki.</p>
+      {alerts_html_body}
+    </section>
+
+    <section id=\"fundamentals\" class=\"reveal\">
+      <h2>Fundamenty GPW <span class=\"alert-count-badge\" style=\"background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.4);color:var(--accent);\">{num_fundamentals} spółek</span></h2>
+      <p>Dane fundamentalne WIG20 + mWIG40: P/E, dywidenda, ROE, P/BV — źródło: Yahoo Finance / yfinance.</p>
+      {fundamentals_html}
+    </section>
+
     <section id=\"sentiment\" class=\"reveal\">
       <h2>Sentyment: Antigrav</h2>
       <p>Wyciąg z raportu sentimentu (okres: {esc(sentiment_meta.get('period') or '-')}, czas wykonania: {esc(sentiment_meta.get('duration') or '-')}).</p>
@@ -1284,63 +1749,84 @@ def build_html(
       </div>
     </section>
 
-    <section id=\"tech-pl\" class=\"reveal\">
-      <h2>Techniczne: Polska</h2>
-      <p>Najświeższy raport techniczny (ostatnia data cen: {esc(tech_pl_latest.strftime('%Y-%m-%d') if tech_pl_latest else '-')}).</p>
-      <div class=\"stat-grid\">
-        <div class=\"stat-card\"><div class=\"label\">Bullish</div><div class=\"value\">{tech_pl_counts.get('Bullish', 0)}</div></div>
-        <div class=\"stat-card\"><div class=\"label\">Neutral</div><div class=\"value\">{tech_pl_counts.get('Neutral', 0)}</div></div>
-        <div class=\"stat-card\"><div class=\"label\">Bearish</div><div class=\"value\">{tech_pl_counts.get('Bearish', 0) + tech_pl_counts.get('Strong Bearish', 0)}</div></div>
-      </div>
-      <div class=\"grid-2\">
-        <div>
-          <h3>Najmocniejsze sygnały</h3>
-          {render_table(tech_headers, tech_pl_top_rows)}
-        </div>
-        <div>
-          <h3>Najsłabsze sygnały</h3>
-          {render_table(tech_headers, tech_pl_bottom_rows)}
-        </div>
-      </div>
-      <div style=\"margin-top:18px;\">
-        <h3>Pełna lista</h3>
-        {render_table(tech_headers, tech_pl_full_rows)}
-      </div>
-    </section>
+    <section id=\"tech-markets\" class=\"reveal\">
+      <h2>Analiza Techniczna</h2>
+      <p>Raporty wskaźników RSI, MACD, Bollinger, MFI — GPW i globalnie.</p>
 
-    <section id=\"tech-global\" class=\"reveal\">
-      <h2>Techniczne: Rynki Globalne</h2>
-      <p>Raport globalny (ostatnia data cen: {esc(tech_zagr_latest.strftime('%Y-%m-%d') if tech_zagr_latest else '-')}).</p>
-      <div class=\"stat-grid\">
-        <div class=\"stat-card\"><div class=\"label\">Bullish</div><div class=\"value\">{tech_zagr_counts.get('Bullish', 0)}</div></div>
-        <div class=\"stat-card\"><div class=\"label\">Neutral</div><div class=\"value\">{tech_zagr_counts.get('Neutral', 0)}</div></div>
-        <div class=\"stat-card\"><div class=\"label\">Bearish</div><div class=\"value\">{tech_zagr_counts.get('Bearish', 0) + tech_zagr_counts.get('Strong Bearish', 0)}</div></div>
+      <div class=\"tabs\">
+        <button class=\"tab-btn active\" onclick=\"switchTab(event,'tab-pl')\">Polska (GPW)</button>
+        <button class=\"tab-btn\" onclick=\"switchTab(event,'tab-global')\">Rynki Globalne</button>
       </div>
-      <div class=\"grid-2\">
-        <div>
-          <h3>Najmocniejsze sygnały</h3>
-          {render_table(tech_headers, tech_zagr_top_rows)}
+
+      <div id=\"tab-pl\" class=\"tab-panel active\">
+        <div class=\"stat-grid\">
+          <div class=\"stat-card\"><div class=\"label\">Bullish</div><div class=\"value\">{tech_pl_counts.get('Bullish', 0)}</div></div>
+          <div class=\"stat-card\"><div class=\"label\">Neutral</div><div class=\"value\">{tech_pl_counts.get('Neutral', 0)}</div></div>
+          <div class=\"stat-card\"><div class=\"label\">Bearish</div><div class=\"value\">{tech_pl_counts.get('Bearish', 0) + tech_pl_counts.get('Strong Bearish', 0)}</div></div>
+          <div class=\"stat-card\"><div class=\"label\">Data danych</div><div class=\"value\" style=\"font-size:15px;\">{esc(tech_pl_latest.strftime('%Y-%m-%d') if tech_pl_latest else '-')}</div></div>
         </div>
-        <div>
-          <h3>Najsłabsze sygnały</h3>
-          {render_table(tech_headers, tech_zagr_bottom_rows)}
+        <div class=\"grid-2\">
+          <div><h3>Najmocniejsze</h3>{render_table(tech_headers, tech_pl_top_rows)}</div>
+          <div><h3>Najsłabsze</h3>{render_table(tech_headers, tech_pl_bottom_rows)}</div>
         </div>
+        <div id=\"tech-pl\" style=\"margin-top:18px;\"><h3>Pełna lista GPW</h3>{render_table(tech_headers, tech_pl_full_rows)}</div>
       </div>
-      <div style=\"margin-top:18px;\">
-        <h3>Pełna lista</h3>
-        {render_table(tech_headers, tech_zagr_full_rows)}
+
+      <div id=\"tab-global\" class=\"tab-panel\">
+        <div class=\"stat-grid\">
+          <div class=\"stat-card\"><div class=\"label\">Bullish</div><div class=\"value\">{tech_zagr_counts.get('Bullish', 0)}</div></div>
+          <div class=\"stat-card\"><div class=\"label\">Neutral</div><div class=\"value\">{tech_zagr_counts.get('Neutral', 0)}</div></div>
+          <div class=\"stat-card\"><div class=\"label\">Bearish</div><div class=\"value\">{tech_zagr_counts.get('Bearish', 0) + tech_zagr_counts.get('Strong Bearish', 0)}</div></div>
+          <div class=\"stat-card\"><div class=\"label\">Data danych</div><div class=\"value\" style=\"font-size:15px;\">{esc(tech_zagr_latest.strftime('%Y-%m-%d') if tech_zagr_latest else '-')}</div></div>
+        </div>
+        <div class=\"grid-2\">
+          <div><h3>Najmocniejsze</h3>{render_table(tech_headers, tech_zagr_top_rows)}</div>
+          <div><h3>Najsłabsze</h3>{render_table(tech_headers, tech_zagr_bottom_rows)}</div>
+        </div>
+        <div id=\"tech-global\" style=\"margin-top:18px;\"><h3>Pełna lista Global</h3>{render_table(tech_headers, tech_zagr_full_rows)}</div>
       </div>
     </section>
   </main>
 
   <footer>
-    <p>Źródła: {esc(sentiment_report_path.name if sentiment_report_path else '-')}, {esc(tech_pl_report_path.name if tech_pl_report_path else '-')}, {esc(tech_zagr_report_path.name if tech_zagr_report_path else '-')}.</p>
+    <p>Swetrowo Market Brief &mdash; dane: GPW + global | Źródła: {esc(sentiment_report_path.name if sentiment_report_path else '-')}, {esc(tech_pl_report_path.name if tech_pl_report_path else '-')}, {esc(tech_zagr_report_path.name if tech_zagr_report_path else '-')}. Wygenerowano: {esc(datetime.now().strftime('%Y-%m-%d %H:%M'))}.</p>
   </footer>
 
   <script>
     const sentimentTimeline = {timeline_json};
     const chartEmpty = document.getElementById('chartEmpty');
     const chartCanvas = document.getElementById('sentimentChart');
+
+    function niceAxisMax(value) {{
+      if (value <= 0) return 1;
+      const exponent = Math.floor(Math.log10(value));
+      const magnitude = Math.pow(10, exponent);
+      const residual = value / magnitude;
+      let niceResidual;
+      if (residual <= 1) niceResidual = 1;
+      else if (residual <= 2) niceResidual = 2;
+      else if (residual <= 5) niceResidual = 5;
+      else niceResidual = 10;
+      return niceResidual * magnitude;
+    }}
+
+    function formatAxisDate(dateStr) {{
+      // dateStr like "2026-08-13 15:55"
+      const [datePart] = dateStr.split(' ');
+      const [, m, d] = datePart.split('-');
+      return `${{d}}.${{m}}`;
+    }}
+
+    function pickLabelIndices(count, maxLabels) {{
+      if (count <= maxLabels) {{
+        return Array.from({{ length: count }}, (_, i) => i);
+      }}
+      const idxs = new Set();
+      for (let i = 0; i < maxLabels; i++) {{
+        idxs.add(Math.round(i * (count - 1) / (maxLabels - 1)));
+      }}
+      return [...idxs].sort((a, b) => a - b);
+    }}
 
     function drawSentimentChart(data) {{
       if (!chartCanvas) return;
@@ -1358,13 +1844,15 @@ def build_html(
       chartCanvas.height = height * dpr;
       ctx.scale(dpr, dpr);
 
-      const padding = {{ left: 36, right: 16, top: 16, bottom: 28 }};
+      const padding = {{ left: 32, right: 16, top: 16, bottom: 32 }};
       const innerWidth = width - padding.left - padding.right;
       const innerHeight = height - padding.top - padding.bottom;
 
-      const maxVal = Math.max(
+      const rawMax = Math.max(
         ...data.map(row => Math.max(row.bullish, row.bearish, row.neutral, 1))
       );
+      const gridLines = 4;
+      const maxVal = niceAxisMax(rawMax);
 
       const xStep = innerWidth / (data.length - 1);
       const scaleY = val => padding.top + innerHeight * (1 - val / maxVal);
@@ -1372,16 +1860,46 @@ def build_html(
 
       ctx.clearRect(0, 0, width, height);
 
+      // Horizontal grid lines with Y-axis value labels (unit: liczba spółek)
       ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
       ctx.lineWidth = 1;
-      const gridLines = 4;
+      ctx.font = '10px "Space Mono", monospace';
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.75)';
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
       for (let i = 0; i <= gridLines; i++) {{
         const y = padding.top + (innerHeight / gridLines) * i;
         ctx.beginPath();
         ctx.moveTo(padding.left, y);
         ctx.lineTo(width - padding.right, y);
         ctx.stroke();
+
+        const val = Math.round(maxVal - (maxVal / gridLines) * i);
+        ctx.fillText(String(val), padding.left - 6, y);
       }}
+      ctx.textBaseline = 'alphabetic';
+
+      // X-axis tick marks + date labels
+      const maxLabels = Math.max(2, Math.floor(innerWidth / 55));
+      const labelIdxs = pickLabelIndices(data.length, maxLabels);
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.35)';
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.85)';
+      labelIdxs.forEach(idx => {{
+        const x = scaleX(idx);
+        ctx.beginPath();
+        ctx.moveTo(x, height - padding.bottom);
+        ctx.lineTo(x, height - padding.bottom + 4);
+        ctx.stroke();
+
+        if (idx === 0) {{
+          ctx.textAlign = 'left';
+        }} else if (idx === data.length - 1) {{
+          ctx.textAlign = 'right';
+        }} else {{
+          ctx.textAlign = 'center';
+        }}
+        ctx.fillText(formatAxisDate(data[idx].date), x, height - 8);
+      }});
 
       function drawLine(key, color) {{
         ctx.strokeStyle = color;
@@ -1411,15 +1929,6 @@ def build_html(
       drawLine('bullish', '#22c55e');
       drawLine('bearish', '#ef4444');
       drawLine('neutral', '#f59e0b');
-
-      ctx.fillStyle = 'rgba(148, 163, 184, 0.7)';
-      ctx.font = '10px \"Space Mono\", monospace';
-      ctx.textAlign = 'center';
-      const lastIdx = data.length - 1;
-      ctx.fillText(data[0].date, scaleX(0), height - 10);
-      if (lastIdx > 0) {{
-        ctx.fillText(data[lastIdx].date, scaleX(lastIdx), height - 10);
-      }}
     }}
 
     const observer = new IntersectionObserver((entries) => {{
@@ -1428,11 +1937,66 @@ def build_html(
           entry.target.classList.add('visible');
         }}
       }});
-    }}, {{ threshold: 0.2 }});
+    }}, {{ threshold: 0.15 }});
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     drawSentimentChart(sentimentTimeline);
     window.addEventListener('resize', () => drawSentimentChart(sentimentTimeline));
+
+    /* === SORTOWANIE TABEL === */
+    function makeSortable(table) {{
+      const headers = table.querySelectorAll('th[data-col]');
+      headers.forEach(th => {{
+        th.classList.add('sortable');
+        th.addEventListener('click', () => {{
+          const col = parseInt(th.dataset.col);
+          const asc = th.classList.contains('sort-asc');
+          headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+          th.classList.add(asc ? 'sort-desc' : 'sort-asc');
+          const tbody = table.querySelector('tbody');
+          const rows  = Array.from(tbody.querySelectorAll('tr'));
+          rows.sort((a, b) => {{
+            const av = a.cells[col]?.innerText.trim() || '';
+            const bv = b.cells[col]?.innerText.trim() || '';
+            const an = parseFloat(av.replace(/[^0-9.-]/g, ''));
+            const bn = parseFloat(bv.replace(/[^0-9.-]/g, ''));
+            if (!isNaN(an) && !isNaN(bn)) return asc ? bn - an : an - bn;
+            return asc ? bv.localeCompare(av, 'pl') : av.localeCompare(bv, 'pl');
+          }});
+          rows.forEach(r => tbody.appendChild(r));
+        }});
+      }});
+    }}
+
+    document.querySelectorAll('table').forEach(t => {{
+      const ths = t.querySelectorAll('th');
+      ths.forEach((th, i) => {{ if (!th.dataset.col) th.dataset.col = i; }});
+      makeSortable(t);
+    }});
+
+    /* === ZAKŁADKI === */
+    function switchTab(e, panelId) {{
+      const section = e.target.closest('section');
+      section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      e.target.classList.add('active');
+      document.getElementById(panelId)?.classList.add('active');
+    }}
+
+    /* === COUNTDOWN DO ODŚWIEżENIA === */
+    (function() {{
+      const totalSec = 5 * 60;
+      let remaining = totalSec;
+      const el = document.getElementById('countdownVal');
+      if (!el) return;
+      setInterval(() => {{
+        remaining--;
+        if (remaining <= 0) {{ location.reload(); return; }}
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        el.textContent = m + ':' + String(s).padStart(2, '0');
+      }}, 1000);
+    }})();
   </script>
 </body>
 </html>
@@ -1471,6 +2035,15 @@ def main():
 
     sentiment_timeline = load_sentiment_timeline(SENTIMENT_DIR, limit=20)
 
+    # Nowe źródła danych v2
+    macro_snapshot   = load_macro_snapshot()
+    alerts_data      = load_alerts_data()
+    fundamentals_data = load_fundamentals_gpw()
+    if macro_snapshot:
+        print(f"Macro snapshot: {macro_snapshot.get('generated_at', '?')}")
+    print(f"Alerty: {len(alerts_data)} szt.")
+    print(f"Fundamenty GPW: {len(fundamentals_data)} spółek")
+
     html_out = build_html(
         forum_headlines,
         forum_updated,
@@ -1500,6 +2073,9 @@ def main():
         sentiment_dt,
         tech_pl_dt,
         tech_zagr_dt,
+        macro_snapshot=macro_snapshot,
+        alerts_data=alerts_data,
+        fundamentals_data=fundamentals_data,
     )
 
     output_path = BASE_DIR / "swetrowo.html"
