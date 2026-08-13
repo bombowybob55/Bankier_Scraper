@@ -8,8 +8,8 @@ Ostatnia aktualizacja: 27.01.2026
 |-----|--------|---------------|
 | 1 | ALIOR | [ALIOR](https://www.bankier.pl/forum/forum_o_alior-bank,6,21,10000001210.html) |
 | 2 | ALLEGRO | [ALLEGRO](https://www.bankier.pl/forum/forum_o_allegro,6,21,10000001753.html) |
-| 3 | BUDIMEX | [BUDIMEX](https://www.bankier.pl/forum/forum_o_budimex,6,21,33.html |
-| 4 | CCC | [CCC](https://www.bankier.pl/forum/forum_o_ng2-ccc,6,21,10000000069.html) |
+| 3 | BUDIMEX | [BUDIMEX](https://www.bankier.pl/forum/forum_o_budimex,6,21,33.html) |
+| 4 | MODIVO | [MDV](https://www.bankier.pl/forum/forum_o_ng2-ccc,6,21,10000000069.html) |
 | 5 | CD PROJEKT | [CD PROJEKT](https://www.bankier.pl/forum/forum_o_cd-projekt,6,21,353.html) |
 | 6 | DINO | [DINO](https://www.bankier.pl/forum/forum_o_dino-polska,6,21,10000001632.html) |
 | 7 | GRUPA KĘTY | [GRUPA KĘTY](https://www.bankier.pl/forum/forum_o_kety,6,21,114.html) |
@@ -25,7 +25,7 @@ Ostatnia aktualizacja: 27.01.2026
 | 17 | PKO BP | [PKO BP](https://www.bankier.pl/forum/forum_o_pko-bp,6,21,10000000062.html) |
 | 18 | PGNIG | [PGNIG](https://www.bankier.pl/forum/forum_o_pgnig,6,21,10000000074.html) |
 | 19 | PZU | [PZU](https://www.bankier.pl/forum/forum_o_pzu,6,21,10000000081.html) |
-| 20 | SANTANDER | [SANTANDER] (https://www.bankier.pl/forum/forum_o_sanpl,6,21,38.html) |
+| 20 | ERSTE BANK POLSKA | [EBP](https://www.bankier.pl/forum/forum_o_sanpl,6,21,38.html) |
 | 21 | TAURON | [TAURON](https://www.bankier.pl/forum/forum_o_tauron,6,21,10000000421.html) |
 | 22 | ENEA | [ENEA](https://www.bankier.pl/forum/forum_o_enea,6,21,10000000075.html) |
 | 23 | ŻABKA | [ŻABKA](https://www.bankier.pl/forum/forum_o_zabka,6,21,10000001689.html) |

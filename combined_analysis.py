@@ -21,7 +21,7 @@ NAME_TO_TICKER = {
     'ALIOR': 'ALR',
     'ALLEGRO': 'ALE',
     'BUDIMEX': 'BDX',
-    'CCC': 'CCC',
+    'MDV': 'MDV',
     'CD PROJEKT': 'CDR',
     'DINO': 'DNP',
     'GRUPA KĘTY': 'KTY',
@@ -37,7 +37,7 @@ NAME_TO_TICKER = {
     'PKO BP': 'PKO',
     'PGNIG': 'PGN', # Added manually just in case, though might be delisted
     'PZU': 'PZU',
-    'SANTANDER': 'SPL',
+    'EBP': 'EBP',
     'TAURON': 'TPE',
     'ENEA': 'ENA',
     'ŻABKA': 'ZAB',
