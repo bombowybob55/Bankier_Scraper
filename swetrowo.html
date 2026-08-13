@@ -22,6 +22,148 @@
       --meme: #facc15;
     }
 
+    /* === MACRO PULSE === */
+    .macro-pulse {
+      max-width: 1280px;
+      margin: 14px auto 0;
+      padding: 0 32px;
+    }
+    .macro-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 4px;
+    }
+    .macro-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 2px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .macro-ts {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .macro-track {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .macro-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 12px;
+      padding: 8px 14px;
+      min-width: 90px;
+      transition: border-color 0.2s;
+    }
+    .macro-item:hover { border-color: rgba(56, 189, 248, 0.55); }
+    .macro-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .macro-price {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .macro-chg {
+      font-size: 11px;
+      margin-top: 2px;
+    }
+
+    /* === ALERTY === */
+    .alert-count-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      color: var(--red);
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 4px 10px;
+      margin-left: 12px;
+      letter-spacing: 1px;
+    }
+    tr.alert-buy   { background: rgba(34,197,94,0.06); }
+    tr.alert-sell  { background: rgba(239,68,68,0.06); }
+    tr.alert-watch { background: rgba(245,158,11,0.04); }
+    .pill.buy   { background: rgba(34,197,94,0.15);  color: var(--green); border-color: rgba(34,197,94,0.4); }
+    .pill.sell  { background: rgba(239,68,68,0.15);  color: var(--red);   border-color: rgba(239,68,68,0.4); }
+    .pill.watch { background: rgba(245,158,11,0.15); color: var(--amber); border-color: rgba(245,158,11,0.4); }
+    .mkt-badge {
+      font-size: 10px;
+      background: rgba(56,189,248,0.1);
+      border: 1px solid rgba(56,189,248,0.3);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 2px 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* === ZAKŁADKI SEKTOROWE === */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(56,189,248,0.35);
+      background: rgba(56,189,248,0.08);
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: 0.2s;
+    }
+    .tab-btn:hover, .tab-btn.active {
+      background: rgba(56,189,248,0.2);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* === SORTOWANIE === */
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    th.sortable:hover { color: var(--accent); }
+    th.sort-asc::after  { content: ' ▲'; color: var(--accent); }
+    th.sort-desc::after { content: ' ▼'; color: var(--accent); }
+
+    /* === REFRESH COUNTDOWN === */
+    .refresh-bar {
+      position: fixed;
+      bottom: 12px;
+      right: 20px;
+      background: rgba(15,23,42,0.88);
+      border: 1px solid rgba(56,189,248,0.3);
+      border-radius: 999px;
+      padding: 6px 16px;
+      font-size: 11px;
+      color: var(--muted);
+      z-index: 99;
+      backdrop-filter: blur(8px);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -529,24 +671,36 @@
     @media (max-width: 960px) {
       .nav { flex-direction: column; gap: 10px; }
       .nav-links { flex-wrap: wrap; justify-content: center; }
+      .macro-track { gap: 6px; }
+      .macro-item { min-width: 70px; padding: 6px 10px; }
     }
   </style>
 </head>
 <body>
   <header>
     <div class="nav">
-      <div class="logo">Swetrowo</div>
+      <div class="logo">Swetrowo <span style="font-size:13px;color:var(--accent);letter-spacing:1px;">Market Brief</span></div>
       <nav class="nav-links">
+        <a href="#macro">Makro</a>
+        <a href="#alerts">Alerty</a>
+        <a href="#fundamentals">Fundamenty</a>
         <a href="#sentiment">Sentyment</a>
-        <a href="#tech-pl">Techniczne PL</a>
-        <a href="#tech-global">Techniczne Global</a>
+        <a href="#tech-markets">Techniczne</a>
       </nav>
     </div>
   </header>
+  
+  <div class="macro-pulse reveal" id="macro">
+    <div class="macro-header">
+      <span class="macro-title">Macro Pulse</span>
+      <span class="macro-ts">Aktualizacja: 2026-08-13 15:32:54</span>
+    </div>
+    <div class="macro-track"><div class="macro-item"><span class="macro-label">DAX</span><span class="macro-price">26,405</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.28%</span></div><div class="macro-item"><span class="macro-label">S&amp;P500</span><span class="macro-price">7,770</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.27%</span></div><div class="macro-item"><span class="macro-label">NASDAQ</span><span class="macro-price">26,637</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.18%</span></div><div class="macro-item"><span class="macro-label">DJIA</span><span class="macro-price">53,894</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.23%</span></div><div class="macro-item"><span class="macro-label">EUR/PLN</span><span class="macro-price">4.3037</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.12%</span></div><div class="macro-item"><span class="macro-label">USD/PLN</span><span class="macro-price">3.7300</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.17%</span></div><div class="macro-item"><span class="macro-label">CHF/PLN</span><span class="macro-price">4.5919</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.03%</span></div><div class="macro-item"><span class="macro-label">Złoto</span><span class="macro-price">4,451</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.95%</span></div><div class="macro-item"><span class="macro-label">Ropa WTI</span><span class="macro-price">80.95</span><span class="macro-chg" style="color:var(--red)">&#9660; 2.79%</span></div><div class="macro-item"><span class="macro-label">Miedź</span><span class="macro-price">6.6180</span><span class="macro-chg" style="color:var(--green)">&#9650; 0.32%</span></div><div class="macro-item"><span class="macro-label">US 10Y</span><span class="macro-price">4.6450</span><span class="macro-chg" style="color:var(--red)">&#9660; 0.79%</span></div></div>
+  </div>
 
   <section class="hero">
     <div class="ticker-strip reveal">
-      <div class="ticker-track"><span>11B</span> <span>DNP</span> <span>PLW</span> <span>TXT</span> <span>GPP</span> <span>AMZN</span> <span>MSFT</span> <span>CRM</span> <span>V</span> <span>UNH</span><span>11B</span> <span>DNP</span> <span>PLW</span> <span>TXT</span> <span>GPP</span> <span>AMZN</span> <span>MSFT</span> <span>CRM</span> <span>V</span> <span>UNH</span></div>
+      <div class="ticker-track"><span>11B</span> <span>ASE</span> <span>PEP</span> <span>TXT</span> <span>NEU</span> <span>CAT</span> <span>TSLA</span> <span>GOOGL</span> <span>HD</span> <span>AMZN</span><span>11B</span> <span>ASE</span> <span>PEP</span> <span>TXT</span> <span>NEU</span> <span>CAT</span> <span>TSLA</span> <span>GOOGL</span> <span>HD</span> <span>AMZN</span></div>
     </div>
     <div class="hero-card reveal">
       <div class="badge">HODL Desk</div>
@@ -560,9 +714,9 @@
         <span class="meme-tag">WIG20</span>
       </div>
       <div class="meta-grid">
-        <div class="meta-card"><strong>Sentyment</strong>2026-02-09 19:58:16</div>
-        <div class="meta-card"><strong>Techniczne PL</strong>2026-02-09 19:57:42</div>
-        <div class="meta-card"><strong>Techniczne Global</strong>2026-02-09 13:29:40</div>
+        <div class="meta-card"><strong>Sentyment</strong>2026-08-13 15:34:05</div>
+        <div class="meta-card"><strong>Techniczne PL</strong>2026-08-13 15:33:47</div>
+        <div class="meta-card"><strong>Techniczne Global</strong>2026-08-13 15:33:46</div>
       </div>
     </div>
     <div class="chart-card reveal">
@@ -584,10 +738,10 @@
       <div class="chart-header">
         <div>
           <div class="chart-title">Combined Analysis</div>
-          <div class="chart-sub">Źródło: combined_analysis.py · combined_20260209_195856.csv</div>
+          <div class="chart-sub">Źródło: combined_analysis.py · combined_20260813_153406.csv</div>
         </div>
       </div>
-      <div class="table-wrap compact"><table class="compact-table"><thead><tr><th>Ticker</th><th>Final_Score</th><th>Attractiveness</th><th>combined_score</th><th>Sentiment_Score</th><th>Threads</th><th>last_close</th></tr></thead><tbody><tr><td>CBF</td><td>43.75</td><td>✅ BUY</td><td>37.50</td><td>50.00</td><td>2</td><td>195.40</td></tr><tr><td>11B</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>0</td><td>134.00</td></tr><tr><td>PLW</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>0</td><td>254.00</td></tr><tr><td>DNP</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>0</td><td>39.19</td></tr><tr><td>TXT</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>39.16</td></tr><tr><td>GPP</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>43.75</td></tr><tr><td>ALE</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>28.68</td></tr><tr><td>PEP</td><td>12.50</td><td>⏸ HOLD</td><td>25.00</td><td>0.00</td><td>0</td><td>53.00</td></tr><tr><td>ASE</td><td>12.50</td><td>⏸ HOLD</td><td>25.00</td><td>0.00</td><td>0</td><td>66.20</td></tr><tr><td>DIA</td><td>12.50</td><td>⏸ HOLD</td><td>25.00</td><td>0.00</td><td>0</td><td>180.65</td></tr><tr><td>ACP</td><td>12.50</td><td>⏸ HOLD</td><td>25.00</td><td>0.00</td><td>7</td><td>189.50</td></tr><tr><td>CDR</td><td>12.50</td><td>⏸ HOLD</td><td>25.00</td><td>0.00</td><td>0</td><td>240.00</td></tr></tbody></table></div>
+      <div class="table-wrap compact"><table class="compact-table"><thead><tr><th>Ticker</th><th>Final_Score</th><th>Attractiveness</th><th>combined_score</th><th>Sentiment_Score</th><th>Threads</th><th>last_close</th></tr></thead><tbody><tr><td>EUR</td><td>32.50</td><td>✅ BUY</td><td>25.00</td><td>40.00</td><td>10</td><td>6.00</td></tr><tr><td>11B</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>0</td><td>137.80</td></tr><tr><td>PEP</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>0</td><td>51.60</td></tr><tr><td>TXT</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>8</td><td>36.08</td></tr><tr><td>ASE</td><td>25.00</td><td>✅ BUY</td><td>50.00</td><td>0.00</td><td>1</td><td>64.20</td></tr><tr><td>NEU</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>725.00</td></tr><tr><td>DOM</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>1</td><td>240.50</td></tr><tr><td>SNT</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>269.60</td></tr><tr><td>CBF</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>2</td><td>179.00</td></tr><tr><td>VOX</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>1</td><td>118.00</td></tr><tr><td>ACP</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>169.00</td></tr><tr><td>ALE</td><td>18.75</td><td>⏸ HOLD</td><td>37.50</td><td>0.00</td><td>0</td><td>27.25</td></tr></tbody></table></div>
     </div>
   </section>
 
@@ -596,96 +750,132 @@
       <div class="forum-header">
         <div>
           <h2>Forum Pulse: świeże wątki</h2>
-          <div class="forum-meta">Źródło: Forum Giełda · Aktualizacja: 2026-02-10 15:47:27</div>
+          <div class="forum-meta">Źródło: Forum Giełda · Aktualizacja: 2026-08-13 15:34:07</div>
         </div>
         <div class="forum-badge">Forum Pulse</div>
       </div>
       <ul class="headline-list">
-        <li><span class="headline-date">2026-01-28 16:26</span><a href="https://www.bankier.pl/temat_gieldowy-pit-na-click-oszczedz-czas-i-rozlicz-sie-bez-problemow,73310751.html" target="_blank" rel="noopener noreferrer">Giełdowy PIT na click – oszczędź czas i rozlicz się bez problemów!</a></li><li><span class="headline-date">2026-02-04 10:57</span><a href="https://www.bankier.pl/temat_informacja-od-redakcji-bankier-pl-dotyczaca-dzialania-forum,73205873.html" target="_blank" rel="noopener noreferrer">Informacja od redakcji Bankier.pl dotycząca działania forum</a></li><li><span class="headline-date">2026-01-10 17:31</span><a href="https://www.bankier.pl/temat_straty-odbijecie-na-greenx,73109561.html" target="_blank" rel="noopener noreferrer">Straty odbijecie na GreenX</a></li><li><span class="headline-date">2026-01-10 17:31</span><a href="https://www.bankier.pl/temat_hej-kris,73109649.html" target="_blank" rel="noopener noreferrer">Hej kris</a></li><li><span class="headline-date">2026-01-10 17:24</span><a href="https://www.bankier.pl/temat_ortex,73088413.html" target="_blank" rel="noopener noreferrer">&gt;&gt;&gt;  ORTEX  &lt;&lt;&lt;</a></li><li><span class="headline-date">2026-01-10 17:14</span><a href="https://www.bankier.pl/temat_6-zl-po-wyplacie,73109295.html" target="_blank" rel="noopener noreferrer">6 zl po wyplacie</a></li><li><span class="headline-date">2026-02-10 07:20</span><a href="https://www.pb.pl/ronson-nabiera-rozpedu-chce-zaczynac-wiecej-budow-ale-w-mniejszym-formacie-1256173?utm_source=bankier.pl&amp;utm_medium=content&amp;utm_campaign=boxForum" target="_blank" rel="noopener noreferrer">Ronson nabiera rozpędu. Chce zaczynać więcej budów, ale w mniejszym formacie</a></li><li><span class="headline-date">2026-01-10 17:14</span><a href="https://www.bankier.pl/temat_jak-tam-wyolczakowani-nawet-podatku-nie-obnizycie,72982783.html" target="_blank" rel="noopener noreferrer">Jak tam wyolczakowani? Nawet podatku nie obniżycie</a></li>
+        <li>Brak danych z forum. Odśwież raport z dostępem do internetu.</li>
       </ul>
     </div>
   </section>
 
+  <div class="refresh-bar" id="refreshBar">&#128337; Odświeżenie za: <span id="countdownVal">5:00</span></div>
+
   <main>
+    <section id="alerts" class="reveal">
+      <h2>Alerty Techniczne <span class="alert-count-badge">21 &uarr; WYSOKICH &middot; 32 łącznie</span></h2>
+      <p>RSI ekstremalne, Golden/Death Cross, skoki wolumenu, 52-tygodniowe szczyty/dółki.</p>
+      <div class="table-wrap">
+  <table class="sortable-table" id="alertsTable">
+    <thead><tr>
+      <th data-col="0">Ticker</th>
+      <th data-col="1">Rynek</th>
+      <th data-col="2">Sygnał</th>
+      <th data-col="3">Rekomendacja</th>
+      <th data-col="4">RSI</th>
+      <th data-col="5">Cena</th>
+      <th data-col="6">Data</th>
+    </tr></thead>
+    <tbody><tr class="alert-sell"><td>&#128293; AMGN</td><td><span class="mkt-badge">ZAGR</span></td><td>RSI = 75.4 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>75.4</td><td>416.18</td><td>2026-08-12</td></tr><tr class="alert-sell"><td>&#128293; ATT</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 77.5 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>77.5</td><td>18.06</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; BDX</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 19.9 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>19.9</td><td>655.40</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; BFT</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 28.7 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>28.7</td><td>3585.00</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#128293; CAR</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 73.2 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>73.2</td><td>650.00</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; DIA</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 29.6 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>29.6</td><td>171.55</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; DOM</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 27.1 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>27.1</td><td>240.50</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; EAT</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 23.1 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>23.1</td><td>11.50</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#128293; JPM</td><td><span class="mkt-badge">ZAGR</span></td><td>RSI = 74.3 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>74.3</td><td>365.18</td><td>2026-08-12</td></tr><tr class="alert-sell"><td>&#128293; JSW</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 74.0 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>74.0</td><td>31.68</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; KTY</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 22.3 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>22.3</td><td>954.50</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#128293; MMM</td><td><span class="mkt-badge">ZAGR</span></td><td>RSI = 72.1 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>72.1</td><td>183.78</td><td>2026-08-12</td></tr><tr class="alert-buy"><td>&#128293; MRB</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 26.1 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>26.1</td><td>11.69</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#128293; MRK</td><td><span class="mkt-badge">ZAGR</span></td><td>RSI = 71.3 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>71.3</td><td>132.92</td><td>2026-08-12</td></tr><tr class="alert-buy"><td>&#128293; NEU</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 25.4 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>25.4</td><td>725.00</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#128293; PKN</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 74.4 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>74.4</td><td>129.58</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; RBW</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 23.3 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>23.3</td><td>128.20</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; SNT</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 27.5 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>27.5</td><td>269.60</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; TPE</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 21.2 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>21.2</td><td>9.28</td><td>2026-03-16</td></tr><tr class="alert-buy"><td>&#128293; VOX</td><td><span class="mkt-badge">GPW</span></td><td>RSI = 23.9 (&lt; 30)</td><td><span class="pill buy">KUP</span></td><td>23.9</td><td>118.00</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#128293; WMT</td><td><span class="mkt-badge">ZAGR</span></td><td>RSI = 72.5 (&gt; 70)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>72.5</td><td>116.01</td><td>2026-08-12</td></tr><tr class="alert-sell"><td>&#9888; DOW</td><td><span class="mkt-badge">ZAGR</span></td><td>Death Cross (MA50 ↓ MA200)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>53.9</td><td>30.57</td><td>2026-08-12</td></tr><tr class="alert-watch"><td>&#9888; EUR</td><td><span class="mkt-badge">GPW</span></td><td>Wolumen 3.2× powyżej średniej</td><td><span class="pill watch">OBSERWUJ</span></td><td>-</td><td>6.00</td><td>2026-03-16</td></tr><tr class="alert-watch"><td>&#9888; GPP</td><td><span class="mkt-badge">GPW</span></td><td>Wolumen 15.3× powyżej średniej</td><td><span class="pill watch">OBSERWUJ</span></td><td>-</td><td>39.25</td><td>2026-03-16</td></tr><tr class="alert-watch"><td>&#9888; HUG</td><td><span class="mkt-badge">GPW</span></td><td>Wolumen 5.1× powyżej średniej</td><td><span class="pill watch">OBSERWUJ</span></td><td>-</td><td>24.50</td><td>2026-03-16</td></tr><tr class="alert-sell"><td>&#9888; ZAB</td><td><span class="mkt-badge">GPW</span></td><td>Death Cross (MA50 ↓ MA200)</td><td><span class="pill sell">SPRZEDAJ</span></td><td>34.3</td><td>20.50</td><td>2026-03-16</td></tr><tr class="alert-watch"><td>&#8505; CAR</td><td><span class="mkt-badge">GPW</span></td><td>Nowe 52-tygodniowe maksimum</td><td><span class="pill watch">OBSERWUJ</span></td><td>73.2</td><td>650.00</td><td>2026-03-16</td></tr><tr class="alert-watch"><td>&#8505; EUR</td><td><span class="mkt-badge">GPW</span></td><td>Nowe 52-tygodniowe minimum</td><td><span class="pill watch">OBSERWUJ</span></td><td>31.2</td><td>6.00</td><td>2026-03-16</td></tr><tr class="alert-watch"><td>&#8505; JPM</td><td><span class="mkt-badge">ZAGR</span></td><td>Nowe 52-tygodniowe maksimum</td><td><span class="pill watch">OBSERWUJ</span></td><td>74.3</td><td>365.18</td><td>2026-08-12</td></tr><tr class="alert-watch"><td>&#8505; MMM</td><td><span class="mkt-badge">ZAGR</span></td><td>Nowe 52-tygodniowe maksimum</td><td><span class="pill watch">OBSERWUJ</span></td><td>72.1</td><td>183.78</td><td>2026-08-12</td></tr><tr class="alert-watch"><td>&#8505; MRK</td><td><span class="mkt-badge">ZAGR</span></td><td>Nowe 52-tygodniowe maksimum</td><td><span class="pill watch">OBSERWUJ</span></td><td>71.3</td><td>132.92</td><td>2026-08-12</td></tr><tr class="alert-watch"><td>&#8505; NKE</td><td><span class="mkt-badge">ZAGR</span></td><td>Nowe 52-tygodniowe minimum</td><td><span class="pill watch">OBSERWUJ</span></td><td>34.2</td><td>40.51</td><td>2026-08-12</td></tr></tbody>
+  </table>
+</div>
+    </section>
+
+    <section id="fundamentals" class="reveal">
+      <h2>Fundamenty GPW <span class="alert-count-badge" style="background:rgba(56,189,248,0.1);border-color:rgba(56,189,248,0.4);color:var(--accent);">38 spółek</span></h2>
+      <p>Dane fundamentalne WIG20 + mWIG40: P/E, dywidenda, ROE, P/BV — źródło: Yahoo Finance / yfinance.</p>
+        <div class="stat-grid">
+    <div class="stat-card"><div class="label">Spółek</div><div class="value">38</div></div>
+    <div class="stat-card"><div class="label">P/E < 15 (tanie)</div><div class="value">13</div></div>
+    <div class="stat-card"><div class="label">Wypłaca dywidendę</div><div class="value">29</div></div>
+    <div class="stat-card"><div class="label">Avg ROE</div><div class="value">8.1%</div></div>
+  </div>
+  <div class="grid-2" style="margin-top:18px;">
+    <div>
+      <h3>Top 10 wg P/E (najtańsze)</h3>
+      <div class="table-wrap">
+        <table><thead><tr><th>Ticker</th><th>Spółka</th><th>Indeks</th><th>P/E</th><th>P/E fwd</th><th>Dywidenda</th><th>ROE</th><th>P/BV</th><th>Ocena</th></tr></thead><tbody><tr><td><strong>TPE</strong></td><td>Tauron</td><td>WIG20</td><td>5.0</td><td>7.7</td><td>2.18%</td><td>15.6%</td><td>0.73</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>KRU</strong></td><td>Kruk</td><td>WIG20</td><td>8.1</td><td>7.4</td><td>4.58%</td><td>21.1%</td><td>1.50</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>ALR</strong></td><td>Alior Bank</td><td>WIG20</td><td>8.5</td><td>7.5</td><td>6.73%</td><td>16.8%</td><td>1.38</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>BNP</strong></td><td>BNP Paribas PL</td><td>mWIG40</td><td>8.8</td><td>9.4</td><td>6.65%</td><td>15.8%</td><td>1.33</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>DOM</strong></td><td>Dom Development</td><td>mWIG40</td><td>9.6</td><td>10.4</td><td>5.51%</td><td>34.1%</td><td>3.04</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>PZU</strong></td><td>PZU</td><td>WIG20</td><td>9.9</td><td>11.5</td><td>6.60%</td><td>18.3%</td><td>1.69</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>DVL</strong></td><td>Develia</td><td>mWIG40</td><td>10.3</td><td>13.1</td><td>6.85%</td><td>28.4%</td><td>2.33</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>PEO</strong></td><td>Pekao</td><td>WIG20</td><td>10.4</td><td>11.0</td><td>7.73%</td><td>20.2%</td><td>2.04</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>KGH</strong></td><td>KGHM</td><td>WIG20</td><td>10.4</td><td>16.6</td><td>0.41%</td><td>20.1%</td><td>1.93</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr><tr><td><strong>ING</strong></td><td>ING BSK</td><td>mWIG40</td><td>12.9</td><td>12.8</td><td>6.02%</td><td>24.1%</td><td>2.81</td><td><span class="pill bullish">💎 Niedowartościowana</span></td></tr></tbody></table>
+      </div>
+    </div>
+    <div>
+      <h3>Top 10 Dywidendowe</h3>
+      <div class="table-wrap">
+        <table><thead><tr><th>Ticker</th><th>Spółka</th><th>Dywidenda %</th><th>P/E</th><th>ROE</th><th>Kapitalizacja</th></tr></thead><tbody><tr><td><strong>PEO</strong></td><td>Pekao</td><td>7.73%</td><td>10.4</td><td>20.2%</td><td>67114 mln PLN</td></tr><tr><td><strong>DVL</strong></td><td>Develia</td><td>6.85%</td><td>10.3</td><td>28.4%</td><td>4930 mln PLN</td></tr><tr><td><strong>PLW</strong></td><td>PlayWay</td><td>6.83%</td><td>22.4</td><td>21.3%</td><td>1693 mln PLN</td></tr><tr><td><strong>ALR</strong></td><td>Alior Bank</td><td>6.73%</td><td>8.5</td><td>16.8%</td><td>17214 mln PLN</td></tr><tr><td><strong>BNP</strong></td><td>BNP Paribas PL</td><td>6.65%</td><td>8.8</td><td>15.8%</td><td>22488 mln PLN</td></tr><tr><td><strong>PZU</strong></td><td>PZU</td><td>6.60%</td><td>9.9</td><td>18.3%</td><td>62433 mln PLN</td></tr><tr><td><strong>ING</strong></td><td>ING BSK</td><td>6.02%</td><td>12.9</td><td>24.1%</td><td>57894 mln PLN</td></tr><tr><td><strong>ACP</strong></td><td>Asseco Poland</td><td>5.81%</td><td>23.1</td><td>11.7%</td><td>17889 mln PLN</td></tr><tr><td><strong>PKO</strong></td><td>PKO BP</td><td>5.59%</td><td>12.9</td><td>18.6%</td><td>138275 mln PLN</td></tr><tr><td><strong>DOM</strong></td><td>Dom Development</td><td>5.51%</td><td>9.6</td><td>34.1%</td><td>6604 mln PLN</td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+    </section>
+
     <section id="sentiment" class="reveal">
       <h2>Sentyment: Antigrav</h2>
-      <p>Wyciąg z raportu sentimentu (okres: 5 dni, czas wykonania: 22.86s).</p>
+      <p>Wyciąg z raportu sentimentu (okres: 5 dni, czas wykonania: 17.50s).</p>
       <div class="stat-grid">
-        <div class="stat-card"><div class="label">Bullish</div><div class="value">3</div></div>
-        <div class="stat-card"><div class="label">Neutral</div><div class="value">56</div></div>
-        <div class="stat-card"><div class="label">Bearish</div><div class="value">3</div></div>
+        <div class="stat-card"><div class="label">Bullish</div><div class="value">5</div></div>
+        <div class="stat-card"><div class="label">Neutral</div><div class="value">57</div></div>
+        <div class="stat-card"><div class="label">Bearish</div><div class="value">0</div></div>
       </div>
       <div class="grid-2">
         <div>
           <h3>Top pozytywne</h3>
-          <div class="table-wrap"><table><thead><tr><th>company</th><th>positive_pct</th><th>threads</th><th>sentiment</th></tr></thead><tbody><tr><td>CYBERFLKS</td><td>50.0%</td><td>2</td><td>Bullish</td></tr><tr><td>PZU</td><td>25.0%</td><td>4</td><td>Bullish</td></tr><tr><td>JSW</td><td>15.2%</td><td>33</td><td>Bearish</td></tr><tr><td>TSGAMES</td><td>12.9%</td><td>31</td><td>Bullish</td></tr><tr><td>KGHM</td><td>3.0%</td><td>33</td><td>Bearish</td></tr><tr><td>ASSECO POLAND</td><td>0.0%</td><td>7</td><td>Neutral</td></tr><tr><td>AUTOPARTN</td><td>0.0%</td><td>5</td><td>Bearish</td></tr><tr><td>NEWAG</td><td>0.0%</td><td>5</td><td>Neutral</td></tr><tr><td>RAINBOW</td><td>0.0%</td><td>5</td><td>Neutral</td></tr><tr><td>KRUK</td><td>0.0%</td><td>3</td><td>Neutral</td></tr></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>company</th><th>positive_pct</th><th>threads</th><th>sentiment</th></tr></thead><tbody><tr><td>EUROCASH</td><td>40.0%</td><td>10</td><td>Bullish</td></tr><tr><td>AUTOPARTN</td><td>28.6%</td><td>7</td><td>Bullish</td></tr><tr><td>DINO</td><td>20.0%</td><td>30</td><td>Bullish</td></tr><tr><td>PKN ORLEN</td><td>13.3%</td><td>30</td><td>Neutral</td></tr><tr><td>PZU</td><td>12.5%</td><td>16</td><td>Bullish</td></tr><tr><td>GRUPAAZOTY</td><td>10.3%</td><td>29</td><td>Bullish</td></tr><tr><td>PKO BP</td><td>7.7%</td><td>13</td><td>Neutral</td></tr><tr><td>TEXT</td><td>0.0%</td><td>8</td><td>Neutral</td></tr><tr><td>CYBERFLKS</td><td>0.0%</td><td>2</td><td>Neutral</td></tr><tr><td>ABPL</td><td>0.0%</td><td>1</td><td>Neutral</td></tr></tbody></table></div>
         </div>
         <div>
           <h3>Top negatywne</h3>
-          <div class="table-wrap"><table><thead><tr><th>company</th><th>negative_pct</th><th>threads</th><th>sentiment</th></tr></thead><tbody><tr><td>AUTOPARTN</td><td>40.0%</td><td>5</td><td>Bearish</td></tr><tr><td>JSW</td><td>24.2%</td><td>33</td><td>Bearish</td></tr><tr><td>KGHM</td><td>15.2%</td><td>33</td><td>Bearish</td></tr><tr><td>TSGAMES</td><td>0.0%</td><td>31</td><td>Bullish</td></tr><tr><td>ASSECO POLAND</td><td>0.0%</td><td>7</td><td>Neutral</td></tr><tr><td>NEWAG</td><td>0.0%</td><td>5</td><td>Neutral</td></tr><tr><td>RAINBOW</td><td>0.0%</td><td>5</td><td>Neutral</td></tr><tr><td>PZU</td><td>0.0%</td><td>4</td><td>Bullish</td></tr><tr><td>KRUK</td><td>0.0%</td><td>3</td><td>Neutral</td></tr><tr><td>MBANK</td><td>0.0%</td><td>3</td><td>Neutral</td></tr></tbody></table></div>
+          <div class="table-wrap"><table><thead><tr><th>company</th><th>negative_pct</th><th>threads</th><th>sentiment</th></tr></thead><tbody><tr><td>DINO</td><td>10.0%</td><td>30</td><td>Bullish</td></tr><tr><td>PKN ORLEN</td><td>10.0%</td><td>30</td><td>Neutral</td></tr><tr><td>PKO BP</td><td>7.7%</td><td>13</td><td>Neutral</td></tr><tr><td>PZU</td><td>6.2%</td><td>16</td><td>Bullish</td></tr><tr><td>GRUPAAZOTY</td><td>0.0%</td><td>29</td><td>Bullish</td></tr><tr><td>EUROCASH</td><td>0.0%</td><td>10</td><td>Bullish</td></tr><tr><td>TEXT</td><td>0.0%</td><td>8</td><td>Neutral</td></tr><tr><td>AUTOPARTN</td><td>0.0%</td><td>7</td><td>Bullish</td></tr><tr><td>CYBERFLKS</td><td>0.0%</td><td>2</td><td>Neutral</td></tr><tr><td>ABPL</td><td>0.0%</td><td>1</td><td>Neutral</td></tr></tbody></table></div>
         </div>
       </div>
       <div style="margin-top:18px;">
         <h3>Pełny raport sentymentu</h3>
-        <div class="table-wrap"><table><thead><tr><th>company</th><th>threads</th><th>positive</th><th>negative</th><th>neutral</th><th>positive_pct</th><th>negative_pct</th><th>sentiment</th></tr></thead><tbody><tr><td>11 BIT STUDIOS</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ABPL</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ALIOR</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ALLEGRO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>AMREST</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ASBIS</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ASSECO POLAND</td><td>7</td><td>0</td><td>0</td><td>7</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ASSECOSEE</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>AUTOPARTN</td><td>5</td><td>0</td><td>2</td><td>3</td><td>0.0%</td><td>40.0%</td><td>Bearish</td></tr><tr><td>BENEFIT</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>BNP PARIBAS BANK POLSKA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>BUDIMEX</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>CD PROJEKT</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>CYBERFLKS</td><td>2</td><td>1</td><td>0</td><td>1</td><td>50.0%</td><td>0.0%</td><td>Bullish</td></tr><tr><td>CYFROWY POLSAT</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DEVELIA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DIAG</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DINO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DOMDEV</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ENEA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>EUROCASH</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GPW</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GREENX</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GRUPA KĘTY</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GRUPAAZOTY</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GRUPRACUJ</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>HANDLOWY</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>HUUUGE</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ING BANK ŚLĄSKI</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>INTERCARS</td><td>2</td><td>0</td><td>0</td><td>2</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>JSW</td><td>33</td><td>5</td><td>8</td><td>20</td><td>15.2%</td><td>24.2%</td><td>Bearish</td></tr><tr><td>KGHM</td><td>33</td><td>1</td><td>5</td><td>27</td><td>3.0%</td><td>15.2%</td><td>Bearish</td></tr><tr><td>KRUK</td><td>3</td><td>0</td><td>0</td><td>3</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>LPP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>LUBAWA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MBANK</td><td>3</td><td>0</td><td>0</td><td>3</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MILLENNIUM</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MIRBUD</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MOBRUK</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>NEUCA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>NEWAG</td><td>5</td><td>0</td><td>0</td><td>5</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ORANGE POLSKA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PEKAO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PEP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PEPCO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PGE</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PGNIG</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PKN ORLEN</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PKO BP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PLAYWAY</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PZU</td><td>4</td><td>1</td><td>0</td><td>3</td><td>25.0%</td><td>0.0%</td><td>Bullish</td></tr><tr><td>RAINBOW</td><td>5</td><td>0</td><td>0</td><td>5</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>SYNEKTIK</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>TAURON</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>TEXT</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>TSGAMES</td><td>31</td><td>4</td><td>0</td><td>27</td><td>12.9%</td><td>0.0%</td><td>Bullish</td></tr><tr><td>VERCOM</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>VISTULA GROUP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>VOXEL</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>WIRTUALNA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>XTB</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ŻABKA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>company</th><th>threads</th><th>positive</th><th>negative</th><th>neutral</th><th>positive_pct</th><th>negative_pct</th><th>sentiment</th></tr></thead><tbody><tr><td>11 BIT STUDIOS</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ABPL</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ALIOR</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ALLEGRO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>AMREST</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ASBIS</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ASSECO POLAND</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ASSECOSEE</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>AUTOPARTN</td><td>7</td><td>2</td><td>0</td><td>5</td><td>28.6%</td><td>0.0%</td><td>Bullish</td></tr><tr><td>BENEFIT</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>BNP PARIBAS BANK POLSKA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>BUDIMEX</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>CD PROJEKT</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>CYBERFLKS</td><td>2</td><td>0</td><td>0</td><td>2</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>CYFROWY POLSAT</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DEVELIA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DIAG</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>DINO</td><td>30</td><td>6</td><td>3</td><td>21</td><td>20.0%</td><td>10.0%</td><td>Bullish</td></tr><tr><td>DOMDEV</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ENEA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>EUROCASH</td><td>10</td><td>4</td><td>0</td><td>6</td><td>40.0%</td><td>0.0%</td><td>Bullish</td></tr><tr><td>GPW</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GREENX</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GRUPA KĘTY</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>GRUPAAZOTY</td><td>29</td><td>3</td><td>0</td><td>26</td><td>10.3%</td><td>0.0%</td><td>Bullish</td></tr><tr><td>GRUPRACUJ</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>HANDLOWY</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>HUUUGE</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ING BANK ŚLĄSKI</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>INTERCARS</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>JSW</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>KGHM</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>KRUK</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>LPP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>LUBAWA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MBANK</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MILLENNIUM</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MIRBUD</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>MOBRUK</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>NEUCA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>NEWAG</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ORANGE POLSKA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PEKAO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PEP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PEPCO</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PGE</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PGNIG</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PKN ORLEN</td><td>30</td><td>4</td><td>3</td><td>23</td><td>13.3%</td><td>10.0%</td><td>Neutral</td></tr><tr><td>PKO BP</td><td>13</td><td>1</td><td>1</td><td>11</td><td>7.7%</td><td>7.7%</td><td>Neutral</td></tr><tr><td>PLAYWAY</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>PZU</td><td>16</td><td>2</td><td>1</td><td>13</td><td>12.5%</td><td>6.2%</td><td>Bullish</td></tr><tr><td>RAINBOW</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>SYNEKTIK</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>TAURON</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>TEXT</td><td>8</td><td>0</td><td>0</td><td>8</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>TSGAMES</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>VERCOM</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>VISTULA GROUP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>VOXEL</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>WIRTUALNA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>XTB</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr><tr><td>ŻABKA</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0.0%</td><td>0.0%</td><td>Neutral</td></tr></tbody></table></div>
       </div>
     </section>
 
-    <section id="tech-pl" class="reveal">
-      <h2>Techniczne: Polska</h2>
-      <p>Najświeższy raport techniczny (ostatnia data cen: 2026-02-06).</p>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="label">Bullish</div><div class="value">7</div></div>
-        <div class="stat-card"><div class="label">Neutral</div><div class="value">46</div></div>
-        <div class="stat-card"><div class="label">Bearish</div><div class="value">10</div></div>
-      </div>
-      <div class="grid-2">
-        <div>
-          <h3>Najmocniejsze sygnały</h3>
-          <div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>11B</td><td>50.0</td><td>Bullish</td><td>134.00</td><td>2026-02-06</td><td>22.16</td><td>16.35</td></tr><tr><td>DNP</td><td>50.0</td><td>Bullish</td><td>39.19</td><td>2026-02-06</td><td>52.16</td><td>30.17</td></tr><tr><td>PLW</td><td>50.0</td><td>Bullish</td><td>254.00</td><td>2026-02-06</td><td>19.52</td><td>15.71</td></tr><tr><td>TXT</td><td>37.5</td><td>Bullish</td><td>39.16</td><td>2026-02-06</td><td>26.45</td><td>36.55</td></tr><tr><td>GPP</td><td>37.5</td><td>Bullish</td><td>43.75</td><td>2026-02-06</td><td>15.26</td><td>1.92</td></tr><tr><td>CBF</td><td>37.5</td><td>Bullish</td><td>195.40</td><td>2026-02-06</td><td>23.13</td><td>27.67</td></tr><tr><td>ALE</td><td>37.5</td><td>Bullish</td><td>28.68</td><td>2026-02-06</td><td>26.95</td><td>18.73</td></tr><tr><td>CDR</td><td>25.0</td><td>Neutral</td><td>240.00</td><td>2026-02-06</td><td>28.79</td><td>33.68</td></tr><tr><td>DIA</td><td>25.0</td><td>Neutral</td><td>180.65</td><td>2026-02-06</td><td>27.00</td><td>33.34</td></tr><tr><td>ACP</td><td>25.0</td><td>Neutral</td><td>189.50</td><td>2026-02-06</td><td>20.44</td><td>35.86</td></tr></tbody></table></div>
-        </div>
-        <div>
-          <h3>Najsłabsze sygnały</h3>
-          <div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>KTY</td><td>-62.5</td><td>Strong Bearish</td><td>1039.00</td><td>2026-02-06</td><td>64.51</td><td>61.31</td></tr><tr><td>PZU</td><td>-62.5</td><td>Strong Bearish</td><td>71.42</td><td>2026-02-06</td><td>61.61</td><td>60.09</td></tr><tr><td>LPP</td><td>-50.0</td><td>Bearish</td><td>20590.00</td><td>2026-02-06</td><td>62.96</td><td>57.79</td></tr><tr><td>OPL</td><td>-37.5</td><td>Bearish</td><td>11.73</td><td>2026-02-06</td><td>79.56</td><td>92.18</td></tr><tr><td>SNT</td><td>-37.5</td><td>Bearish</td><td>299.00</td><td>2026-02-06</td><td>58.27</td><td>56.61</td></tr><tr><td>ING</td><td>-37.5</td><td>Bearish</td><td>413.00</td><td>2026-02-06</td><td>87.22</td><td>87.00</td></tr><tr><td>ASB</td><td>-37.5</td><td>Bearish</td><td>37.30</td><td>2026-02-06</td><td>53.95</td><td>58.90</td></tr><tr><td>KRU</td><td>-37.5</td><td>Bearish</td><td>487.80</td><td>2026-02-06</td><td>55.60</td><td>46.30</td></tr><tr><td>DVL</td><td>-37.5</td><td>Bearish</td><td>9.77</td><td>2026-02-06</td><td>72.62</td><td>80.20</td></tr><tr><td>BDX</td><td>-37.5</td><td>Bearish</td><td>697.80</td><td>2026-02-06</td><td>54.77</td><td>58.85</td></tr></tbody></table></div>
-        </div>
-      </div>
-      <div style="margin-top:18px;">
-        <h3>Pełna lista</h3>
-        <div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>11B</td><td>50.0</td><td>Bullish</td><td>134.00</td><td>2026-02-06</td><td>22.16</td><td>16.35</td></tr><tr><td>DNP</td><td>50.0</td><td>Bullish</td><td>39.19</td><td>2026-02-06</td><td>52.16</td><td>30.17</td></tr><tr><td>PLW</td><td>50.0</td><td>Bullish</td><td>254.00</td><td>2026-02-06</td><td>19.52</td><td>15.71</td></tr><tr><td>TXT</td><td>37.5</td><td>Bullish</td><td>39.16</td><td>2026-02-06</td><td>26.45</td><td>36.55</td></tr><tr><td>GPP</td><td>37.5</td><td>Bullish</td><td>43.75</td><td>2026-02-06</td><td>15.26</td><td>1.92</td></tr><tr><td>CBF</td><td>37.5</td><td>Bullish</td><td>195.40</td><td>2026-02-06</td><td>23.13</td><td>27.67</td></tr><tr><td>ALE</td><td>37.5</td><td>Bullish</td><td>28.68</td><td>2026-02-06</td><td>26.95</td><td>18.73</td></tr><tr><td>CDR</td><td>25.0</td><td>Neutral</td><td>240.00</td><td>2026-02-06</td><td>28.79</td><td>33.68</td></tr><tr><td>DIA</td><td>25.0</td><td>Neutral</td><td>180.65</td><td>2026-02-06</td><td>27.00</td><td>33.34</td></tr><tr><td>ACP</td><td>25.0</td><td>Neutral</td><td>189.50</td><td>2026-02-06</td><td>20.44</td><td>35.86</td></tr><tr><td>PEP</td><td>25.0</td><td>Neutral</td><td>53.00</td><td>2026-02-06</td><td>27.33</td><td>35.77</td></tr><tr><td>ASE</td><td>25.0</td><td>Neutral</td><td>66.20</td><td>2026-02-06</td><td>27.30</td><td>43.33</td></tr><tr><td>HUG</td><td>12.5</td><td>Neutral</td><td>24.25</td><td>2026-02-06</td><td>50.67</td><td>59.27</td></tr><tr><td>MRB</td><td>12.5</td><td>Neutral</td><td>13.01</td><td>2026-02-06</td><td>37.79</td><td>23.71</td></tr><tr><td>NEU</td><td>12.5</td><td>Neutral</td><td>774.00</td><td>2026-02-06</td><td>32.17</td><td>38.23</td></tr><tr><td>LBW</td><td>12.5</td><td>Neutral</td><td>8.50</td><td>2026-02-06</td><td>52.70</td><td>53.33</td></tr><tr><td>CCC</td><td>12.5</td><td>Neutral</td><td>117.45</td><td>2026-02-06</td><td>41.21</td><td>17.74</td></tr><tr><td>EUR</td><td>12.5</td><td>Neutral</td><td>6.37</td><td>2026-02-06</td><td>32.48</td><td>25.11</td></tr><tr><td>WPL</td><td>12.5</td><td>Neutral</td><td>58.50</td><td>2026-02-06</td><td>31.85</td><td>30.28</td></tr><tr><td>GPW</td><td>12.5</td><td>Neutral</td><td>71.50</td><td>2026-02-06</td><td>56.65</td><td>45.45</td></tr><tr><td>MBK</td><td>12.5</td><td>Neutral</td><td>1064.00</td><td>2026-02-06</td><td>58.83</td><td>54.42</td></tr><tr><td>VRG</td><td>12.5</td><td>Neutral</td><td>5.10</td><td>2026-02-06</td><td>52.15</td><td>45.52</td></tr><tr><td>EAT</td><td>12.5</td><td>Neutral</td><td>13.40</td><td>2026-02-06</td><td>38.00</td><td>21.49</td></tr><tr><td>VOX</td><td>0.0</td><td>Neutral</td><td>137.20</td><td>2026-02-06</td><td>48.19</td><td>30.30</td></tr><tr><td>MBR</td><td>0.0</td><td>Neutral</td><td>362.00</td><td>2026-02-06</td><td>50.04</td><td>28.80</td></tr><tr><td>PGE</td><td>0.0</td><td>Neutral</td><td>9.85</td><td>2026-02-06</td><td>59.48</td><td>78.20</td></tr><tr><td>RBW</td><td>0.0</td><td>Neutral</td><td>157.50</td><td>2026-02-06</td><td>62.95</td><td>58.14</td></tr><tr><td>SPL</td><td>0.0</td><td>Neutral</td><td>580.00</td><td>2026-02-06</td><td>56.46</td><td>71.07</td></tr><tr><td>PCO</td><td>0.0</td><td>Neutral</td><td>27.69</td><td>2026-02-06</td><td>25.30</td><td>60.74</td></tr><tr><td>ZAB</td><td>0.0</td><td>Neutral</td><td>21.60</td><td>2026-02-06</td><td>38.70</td><td>52.25</td></tr><tr><td>ATT</td><td>0.0</td><td>Neutral</td><td>17.32</td><td>2026-02-06</td><td>40.43</td><td>30.32</td></tr><tr><td>ENA</td><td>0.0</td><td>Neutral</td><td>22.06</td><td>2026-02-06</td><td>61.80</td><td>58.11</td></tr><tr><td>DOM</td><td>0.0</td><td>Neutral</td><td>270.00</td><td>2026-02-06</td><td>60.80</td><td>45.32</td></tr><tr><td>CAR</td><td>0.0</td><td>Neutral</td><td>603.00</td><td>2026-02-06</td><td>38.22</td><td>54.46</td></tr><tr><td>JSW</td><td>-12.5</td><td>Neutral</td><td>25.62</td><td>2026-02-06</td><td>44.06</td><td>56.36</td></tr><tr><td>PEO</td><td>-12.5</td><td>Neutral</td><td>230.20</td><td>2026-02-06</td><td>67.90</td><td>70.70</td></tr><tr><td>APR</td><td>-12.5</td><td>Neutral</td><td>17.50</td><td>2026-02-06</td><td>43.17</td><td>50.74</td></tr><tr><td>VRC</td><td>-12.5</td><td>Neutral</td><td>135.00</td><td>2026-02-06</td><td>41.97</td><td>46.30</td></tr><tr><td>BFT</td><td>-12.5</td><td>Neutral</td><td>3800.00</td><td>2026-02-06</td><td>47.59</td><td>41.57</td></tr><tr><td>BHW</td><td>-12.5</td><td>Neutral</td><td>117.60</td><td>2026-02-06</td><td>66.10</td><td>62.52</td></tr><tr><td>PKO</td><td>-12.5</td><td>Neutral</td><td>93.16</td><td>2026-02-06</td><td>56.39</td><td>81.19</td></tr><tr><td>PKN</td><td>-12.5</td><td>Neutral</td><td>110.74</td><td>2026-02-06</td><td>67.29</td><td>65.44</td></tr><tr><td>ABE</td><td>-12.5</td><td>Neutral</td><td>127.20</td><td>2026-02-06</td><td>67.04</td><td>70.67</td></tr><tr><td>KGH</td><td>-12.5</td><td>Neutral</td><td>311.00</td><td>2026-02-06</td><td>43.49</td><td>48.37</td></tr><tr><td>CPS</td><td>-12.5</td><td>Neutral</td><td>12.96</td><td>2026-02-06</td><td>45.12</td><td>47.73</td></tr><tr><td>NWG</td><td>-12.5</td><td>Neutral</td><td>123.00</td><td>2026-02-06</td><td>61.41</td><td>69.15</td></tr><tr><td>MIL</td><td>-12.5</td><td>Neutral</td><td>17.78</td><td>2026-02-06</td><td>60.09</td><td>64.51</td></tr><tr><td>GRX</td><td>-12.5</td><td>Neutral</td><td>2.43</td><td>2026-02-06</td><td>48.50</td><td>59.64</td></tr><tr><td>TEN</td><td>-25.0</td><td>Neutral</td><td>105.60</td><td>2026-02-06</td><td>43.85</td><td>63.97</td></tr><tr><td>XTB</td><td>-25.0</td><td>Neutral</td><td>86.26</td><td>2026-02-06</td><td>74.12</td><td>64.79</td></tr><tr><td>ALR</td><td>-25.0</td><td>Neutral</td><td>123.45</td><td>2026-02-06</td><td>67.54</td><td>84.69</td></tr><tr><td>TPE</td><td>-25.0</td><td>Neutral</td><td>11.29</td><td>2026-02-06</td><td>73.59</td><td>78.84</td></tr><tr><td>BNP</td><td>-25.0</td><td>Neutral</td><td>149.50</td><td>2026-02-06</td><td>69.36</td><td>89.51</td></tr><tr><td>OPL</td><td>-37.5</td><td>Bearish</td><td>11.73</td><td>2026-02-06</td><td>79.56</td><td>92.18</td></tr><tr><td>SNT</td><td>-37.5</td><td>Bearish</td><td>299.00</td><td>2026-02-06</td><td>58.27</td><td>56.61</td></tr><tr><td>ING</td><td>-37.5</td><td>Bearish</td><td>413.00</td><td>2026-02-06</td><td>87.22</td><td>87.00</td></tr><tr><td>ASB</td><td>-37.5</td><td>Bearish</td><td>37.30</td><td>2026-02-06</td><td>53.95</td><td>58.90</td></tr><tr><td>KRU</td><td>-37.5</td><td>Bearish</td><td>487.80</td><td>2026-02-06</td><td>55.60</td><td>46.30</td></tr><tr><td>DVL</td><td>-37.5</td><td>Bearish</td><td>9.77</td><td>2026-02-06</td><td>72.62</td><td>80.20</td></tr><tr><td>BDX</td><td>-37.5</td><td>Bearish</td><td>697.80</td><td>2026-02-06</td><td>54.77</td><td>58.85</td></tr><tr><td>LPP</td><td>-50.0</td><td>Bearish</td><td>20590.00</td><td>2026-02-06</td><td>62.96</td><td>57.79</td></tr><tr><td>KTY</td><td>-62.5</td><td>Strong Bearish</td><td>1039.00</td><td>2026-02-06</td><td>64.51</td><td>61.31</td></tr><tr><td>PZU</td><td>-62.5</td><td>Strong Bearish</td><td>71.42</td><td>2026-02-06</td><td>61.61</td><td>60.09</td></tr></tbody></table></div>
-      </div>
-    </section>
+    <section id="tech-markets" class="reveal">
+      <h2>Analiza Techniczna</h2>
+      <p>Raporty wskaźników RSI, MACD, Bollinger, MFI — GPW i globalnie.</p>
 
-    <section id="tech-global" class="reveal">
-      <h2>Techniczne: Rynki Globalne</h2>
-      <p>Raport globalny (ostatnia data cen: 2026-02-06).</p>
-      <div class="stat-grid">
-        <div class="stat-card"><div class="label">Bullish</div><div class="value">1</div></div>
-        <div class="stat-card"><div class="label">Neutral</div><div class="value">22</div></div>
-        <div class="stat-card"><div class="label">Bearish</div><div class="value">12</div></div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab(event,'tab-pl')">Polska (GPW)</button>
+        <button class="tab-btn" onclick="switchTab(event,'tab-global')">Rynki Globalne</button>
       </div>
-      <div class="grid-2">
-        <div>
-          <h3>Najmocniejsze sygnały</h3>
-          <div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>AMZN</td><td>37.5</td><td>Bullish</td><td>210.32</td><td>2026-02-06</td><td>17.97</td><td>28.48</td></tr><tr><td>MSFT</td><td>25.0</td><td>Neutral</td><td>401.14</td><td>2026-02-06</td><td>26.60</td><td>38.92</td></tr><tr><td>CRM</td><td>25.0</td><td>Neutral</td><td>191.35</td><td>2026-02-06</td><td>17.24</td><td>21.07</td></tr><tr><td>V</td><td>12.5</td><td>Neutral</td><td>331.58</td><td>2026-02-06</td><td>52.36</td><td>58.94</td></tr><tr><td>UNH</td><td>12.5</td><td>Neutral</td><td>276.65</td><td>2026-02-06</td><td>30.13</td><td>39.08</td></tr><tr><td>META</td><td>12.5</td><td>Neutral</td><td>661.46</td><td>2026-02-06</td><td>44.09</td><td>51.78</td></tr><tr><td>MA</td><td>12.5</td><td>Neutral</td><td>548.74</td><td>2026-02-06</td><td>54.37</td><td>53.28</td></tr><tr><td>DOW</td><td>0.0</td><td>Neutral</td><td>31.78</td><td>2026-02-06</td><td>69.74</td><td>55.14</td></tr><tr><td>GOOGL</td><td>0.0</td><td>Neutral</td><td>322.86</td><td>2026-02-06</td><td>32.60</td><td>55.41</td></tr><tr><td>GS</td><td>-12.5</td><td>Neutral</td><td>928.75</td><td>2026-02-06</td><td>49.99</td><td>51.59</td></tr></tbody></table></div>
+
+      <div id="tab-pl" class="tab-panel active">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="label">Bullish</div><div class="value">11</div></div>
+          <div class="stat-card"><div class="label">Neutral</div><div class="value">48</div></div>
+          <div class="stat-card"><div class="label">Bearish</div><div class="value">4</div></div>
+          <div class="stat-card"><div class="label">Data danych</div><div class="value" style="font-size:15px;">2026-03-16</div></div>
         </div>
-        <div>
-          <h3>Najsłabsze sygnały</h3>
-          <div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>KO</td><td>-50.0</td><td>Bearish</td><td>79.03</td><td>2026-02-06</td><td>90.43</td><td>94.88</td></tr><tr><td>MCD</td><td>-50.0</td><td>Bearish</td><td>327.16</td><td>2026-02-06</td><td>84.49</td><td>86.75</td></tr><tr><td>HD</td><td>-50.0</td><td>Bearish</td><td>385.15</td><td>2026-02-06</td><td>61.35</td><td>56.06</td></tr><tr><td>BA</td><td>-50.0</td><td>Bearish</td><td>243.03</td><td>2026-02-06</td><td>62.49</td><td>50.63</td></tr><tr><td>AMGN</td><td>-37.5</td><td>Bearish</td><td>384.32</td><td>2026-02-06</td><td>82.58</td><td>64.17</td></tr><tr><td>MRK</td><td>-37.5</td><td>Bearish</td><td>121.93</td><td>2026-02-06</td><td>86.25</td><td>75.90</td></tr><tr><td>NVDA</td><td>-37.5</td><td>Bearish</td><td>185.41</td><td>2026-02-06</td><td>53.25</td><td>48.38</td></tr><tr><td>PG</td><td>-37.5</td><td>Bearish</td><td>159.17</td><td>2026-02-06</td><td>85.52</td><td>82.99</td></tr><tr><td>TRV</td><td>-37.5</td><td>Bearish</td><td>301.49</td><td>2026-02-06</td><td>88.39</td><td>71.43</td></tr><tr><td>AXP</td><td>-37.5</td><td>Bearish</td><td>359.15</td><td>2026-02-06</td><td>52.80</td><td>57.75</td></tr></tbody></table></div>
+        <div class="grid-2">
+          <div><h3>Najmocniejsze</h3><div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>11B</td><td>50.0</td><td>Bullish</td><td>137.80</td><td>2026-03-16</td><td>51.47</td><td>35.64</td></tr><tr><td>ASE</td><td>50.0</td><td>Bullish</td><td>64.20</td><td>2026-03-16</td><td>44.02</td><td>23.98</td></tr><tr><td>PEP</td><td>50.0</td><td>Bullish</td><td>51.60</td><td>2026-03-16</td><td>47.10</td><td>36.18</td></tr><tr><td>TXT</td><td>50.0</td><td>Bullish</td><td>36.08</td><td>2026-03-16</td><td>37.99</td><td>50.36</td></tr><tr><td>NEU</td><td>37.5</td><td>Bullish</td><td>725.00</td><td>2026-03-16</td><td>25.42</td><td>32.30</td></tr><tr><td>DOM</td><td>37.5</td><td>Bullish</td><td>240.50</td><td>2026-03-16</td><td>27.12</td><td>15.52</td></tr><tr><td>SNT</td><td>37.5</td><td>Bullish</td><td>269.60</td><td>2026-03-16</td><td>27.52</td><td>20.83</td></tr><tr><td>CBF</td><td>37.5</td><td>Bullish</td><td>179.00</td><td>2026-03-16</td><td>41.11</td><td>54.93</td></tr><tr><td>VOX</td><td>37.5</td><td>Bullish</td><td>118.00</td><td>2026-03-16</td><td>23.88</td><td>14.27</td></tr><tr><td>ACP</td><td>37.5</td><td>Bullish</td><td>169.00</td><td>2026-03-16</td><td>34.07</td><td>78.42</td></tr></tbody></table></div></div>
+          <div><h3>Najsłabsze</h3><div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>ATT</td><td>-50.0</td><td>Bearish</td><td>18.06</td><td>2026-03-16</td><td>77.52</td><td>83.50</td></tr><tr><td>ASB</td><td>-50.0</td><td>Bearish</td><td>42.84</td><td>2026-03-16</td><td>60.37</td><td>56.55</td></tr><tr><td>XTB</td><td>-50.0</td><td>Bearish</td><td>93.06</td><td>2026-03-16</td><td>55.45</td><td>77.53</td></tr><tr><td>LBW</td><td>-37.5</td><td>Bearish</td><td>9.47</td><td>2026-03-16</td><td>54.28</td><td>56.44</td></tr><tr><td>CAR</td><td>-25.0</td><td>Neutral</td><td>650.00</td><td>2026-03-16</td><td>73.23</td><td>54.93</td></tr><tr><td>PKN</td><td>-25.0</td><td>Neutral</td><td>129.58</td><td>2026-03-16</td><td>74.36</td><td>67.39</td></tr><tr><td>JSW</td><td>-25.0</td><td>Neutral</td><td>31.68</td><td>2026-03-16</td><td>73.96</td><td>68.72</td></tr><tr><td>PCO</td><td>-12.5</td><td>Neutral</td><td>27.23</td><td>2026-03-16</td><td>53.84</td><td>48.46</td></tr><tr><td>GPP</td><td>-12.5</td><td>Neutral</td><td>39.25</td><td>2026-03-16</td><td>37.00</td><td>64.28</td></tr><tr><td>PKO</td><td>-12.5</td><td>Neutral</td><td>86.68</td><td>2026-03-16</td><td>43.47</td><td>47.41</td></tr></tbody></table></div></div>
         </div>
+        <div id="tech-pl" style="margin-top:18px;"><h3>Pełna lista GPW</h3><div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>11B</td><td>50.0</td><td>Bullish</td><td>137.80</td><td>2026-03-16</td><td>51.47</td><td>35.64</td></tr><tr><td>ASE</td><td>50.0</td><td>Bullish</td><td>64.20</td><td>2026-03-16</td><td>44.02</td><td>23.98</td></tr><tr><td>PEP</td><td>50.0</td><td>Bullish</td><td>51.60</td><td>2026-03-16</td><td>47.10</td><td>36.18</td></tr><tr><td>TXT</td><td>50.0</td><td>Bullish</td><td>36.08</td><td>2026-03-16</td><td>37.99</td><td>50.36</td></tr><tr><td>NEU</td><td>37.5</td><td>Bullish</td><td>725.00</td><td>2026-03-16</td><td>25.42</td><td>32.30</td></tr><tr><td>DOM</td><td>37.5</td><td>Bullish</td><td>240.50</td><td>2026-03-16</td><td>27.12</td><td>15.52</td></tr><tr><td>SNT</td><td>37.5</td><td>Bullish</td><td>269.60</td><td>2026-03-16</td><td>27.52</td><td>20.83</td></tr><tr><td>CBF</td><td>37.5</td><td>Bullish</td><td>179.00</td><td>2026-03-16</td><td>41.11</td><td>54.93</td></tr><tr><td>VOX</td><td>37.5</td><td>Bullish</td><td>118.00</td><td>2026-03-16</td><td>23.88</td><td>14.27</td></tr><tr><td>ACP</td><td>37.5</td><td>Bullish</td><td>169.00</td><td>2026-03-16</td><td>34.07</td><td>78.42</td></tr><tr><td>ALE</td><td>37.5</td><td>Bullish</td><td>27.25</td><td>2026-03-16</td><td>42.32</td><td>46.80</td></tr><tr><td>BDX</td><td>25.0</td><td>Neutral</td><td>655.40</td><td>2026-03-16</td><td>19.88</td><td>42.23</td></tr><tr><td>EUR</td><td>25.0</td><td>Neutral</td><td>6.00</td><td>2026-03-16</td><td>31.16</td><td>14.74</td></tr><tr><td>MRB</td><td>25.0</td><td>Neutral</td><td>11.69</td><td>2026-03-16</td><td>26.14</td><td>22.34</td></tr><tr><td>EAT</td><td>25.0</td><td>Neutral</td><td>11.50</td><td>2026-03-16</td><td>23.13</td><td>28.25</td></tr><tr><td>DIA</td><td>25.0</td><td>Neutral</td><td>171.55</td><td>2026-03-16</td><td>29.65</td><td>38.11</td></tr><tr><td>RBW</td><td>25.0</td><td>Neutral</td><td>128.20</td><td>2026-03-16</td><td>23.28</td><td>32.60</td></tr><tr><td>KTY</td><td>25.0</td><td>Neutral</td><td>954.50</td><td>2026-03-16</td><td>22.31</td><td>26.36</td></tr><tr><td>PZU</td><td>12.5</td><td>Neutral</td><td>63.16</td><td>2026-03-16</td><td>36.30</td><td>39.39</td></tr><tr><td>PLW</td><td>12.5</td><td>Neutral</td><td>249.50</td><td>2026-03-16</td><td>52.54</td><td>50.38</td></tr><tr><td>VRG</td><td>12.5</td><td>Neutral</td><td>4.72</td><td>2026-03-16</td><td>35.14</td><td>25.83</td></tr><tr><td>KRU</td><td>12.5</td><td>Neutral</td><td>447.60</td><td>2026-03-16</td><td>32.31</td><td>23.74</td></tr><tr><td>VRC</td><td>12.5</td><td>Neutral</td><td>124.60</td><td>2026-03-16</td><td>55.17</td><td>53.35</td></tr><tr><td>SPL</td><td>12.5</td><td>Neutral</td><td>548.60</td><td>2026-03-16</td><td>31.93</td><td>25.39</td></tr><tr><td>TEN</td><td>12.5</td><td>Neutral</td><td>105.00</td><td>2026-03-16</td><td>52.01</td><td>44.63</td></tr><tr><td>TPE</td><td>12.5</td><td>Neutral</td><td>9.28</td><td>2026-03-16</td><td>21.19</td><td>44.65</td></tr><tr><td>MIL</td><td>12.5</td><td>Neutral</td><td>15.72</td><td>2026-03-16</td><td>33.56</td><td>35.93</td></tr><tr><td>MBR</td><td>12.5</td><td>Neutral</td><td>335.00</td><td>2026-03-16</td><td>30.03</td><td>22.17</td></tr><tr><td>LPP</td><td>12.5</td><td>Neutral</td><td>19300.00</td><td>2026-03-16</td><td>38.69</td><td>28.00</td></tr><tr><td>KGH</td><td>12.5</td><td>Neutral</td><td>283.50</td><td>2026-03-16</td><td>37.08</td><td>36.22</td></tr><tr><td>ALR</td><td>12.5</td><td>Neutral</td><td>109.75</td><td>2026-03-16</td><td>33.03</td><td>39.21</td></tr><tr><td>BFT</td><td>12.5</td><td>Neutral</td><td>3585.00</td><td>2026-03-16</td><td>28.67</td><td>41.21</td></tr><tr><td>BNP</td><td>12.5</td><td>Neutral</td><td>140.50</td><td>2026-03-16</td><td>34.66</td><td>30.07</td></tr><tr><td>CCC</td><td>12.5</td><td>Neutral</td><td>115.00</td><td>2026-02-17</td><td>36.86</td><td>31.55</td></tr><tr><td>CDR</td><td>12.5</td><td>Neutral</td><td>246.30</td><td>2026-03-16</td><td>49.60</td><td>47.01</td></tr><tr><td>DVL</td><td>12.5</td><td>Neutral</td><td>8.95</td><td>2026-03-16</td><td>39.79</td><td>26.28</td></tr><tr><td>CPS</td><td>12.5</td><td>Neutral</td><td>11.69</td><td>2026-03-16</td><td>30.90</td><td>36.63</td></tr><tr><td>PGE</td><td>0.0</td><td>Neutral</td><td>9.52</td><td>2026-03-16</td><td>34.49</td><td>57.40</td></tr><tr><td>PEO</td><td>0.0</td><td>Neutral</td><td>211.00</td><td>2026-03-16</td><td>40.01</td><td>37.62</td></tr><tr><td>WPL</td><td>0.0</td><td>Neutral</td><td>53.70</td><td>2026-03-16</td><td>30.54</td><td>45.00</td></tr><tr><td>APR</td><td>0.0</td><td>Neutral</td><td>17.94</td><td>2026-03-16</td><td>55.14</td><td>72.16</td></tr><tr><td>BHW</td><td>0.0</td><td>Neutral</td><td>112.20</td><td>2026-03-16</td><td>41.67</td><td>33.41</td></tr><tr><td>ZAB</td><td>0.0</td><td>Neutral</td><td>20.50</td><td>2026-03-16</td><td>34.31</td><td>44.42</td></tr><tr><td>GPW</td><td>0.0</td><td>Neutral</td><td>76.50</td><td>2026-03-16</td><td>42.35</td><td>24.66</td></tr><tr><td>OPL</td><td>0.0</td><td>Neutral</td><td>12.89</td><td>2026-03-16</td><td>36.17</td><td>43.28</td></tr><tr><td>ING</td><td>0.0</td><td>Neutral</td><td>390.50</td><td>2026-03-16</td><td>46.89</td><td>39.12</td></tr><tr><td>HUG</td><td>0.0</td><td>Neutral</td><td>24.50</td><td>2026-03-16</td><td>64.33</td><td>54.83</td></tr><tr><td>GRX</td><td>0.0</td><td>Neutral</td><td>2.27</td><td>2026-03-16</td><td>36.50</td><td>43.39</td></tr><tr><td>MBK</td><td>0.0</td><td>Neutral</td><td>1026.50</td><td>2026-03-16</td><td>63.00</td><td>49.64</td></tr><tr><td>NWG</td><td>0.0</td><td>Neutral</td><td>109.20</td><td>2026-03-16</td><td>42.06</td><td>27.52</td></tr><tr><td>ENA</td><td>0.0</td><td>Neutral</td><td>21.30</td><td>2026-03-16</td><td>30.39</td><td>45.74</td></tr><tr><td>PCO</td><td>-12.5</td><td>Neutral</td><td>27.23</td><td>2026-03-16</td><td>53.84</td><td>48.46</td></tr><tr><td>GPP</td><td>-12.5</td><td>Neutral</td><td>39.25</td><td>2026-03-16</td><td>37.00</td><td>64.28</td></tr><tr><td>PKO</td><td>-12.5</td><td>Neutral</td><td>86.68</td><td>2026-03-16</td><td>43.47</td><td>47.41</td></tr><tr><td>ABE</td><td>-12.5</td><td>Neutral</td><td>127.00</td><td>2026-03-16</td><td>46.36</td><td>57.99</td></tr><tr><td>DNP</td><td>-12.5</td><td>Neutral</td><td>41.46</td><td>2026-03-16</td><td>61.93</td><td>73.74</td></tr><tr><td>CAR</td><td>-25.0</td><td>Neutral</td><td>650.00</td><td>2026-03-16</td><td>73.23</td><td>54.93</td></tr><tr><td>PKN</td><td>-25.0</td><td>Neutral</td><td>129.58</td><td>2026-03-16</td><td>74.36</td><td>67.39</td></tr><tr><td>JSW</td><td>-25.0</td><td>Neutral</td><td>31.68</td><td>2026-03-16</td><td>73.96</td><td>68.72</td></tr><tr><td>LBW</td><td>-37.5</td><td>Bearish</td><td>9.47</td><td>2026-03-16</td><td>54.28</td><td>56.44</td></tr><tr><td>ATT</td><td>-50.0</td><td>Bearish</td><td>18.06</td><td>2026-03-16</td><td>77.52</td><td>83.50</td></tr><tr><td>ASB</td><td>-50.0</td><td>Bearish</td><td>42.84</td><td>2026-03-16</td><td>60.37</td><td>56.55</td></tr><tr><td>XTB</td><td>-50.0</td><td>Bearish</td><td>93.06</td><td>2026-03-16</td><td>55.45</td><td>77.53</td></tr></tbody></table></div></div>
       </div>
-      <div style="margin-top:18px;">
-        <h3>Pełna lista</h3>
-        <div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>AMZN</td><td>37.5</td><td>Bullish</td><td>210.32</td><td>2026-02-06</td><td>17.97</td><td>28.48</td></tr><tr><td>MSFT</td><td>25.0</td><td>Neutral</td><td>401.14</td><td>2026-02-06</td><td>26.60</td><td>38.92</td></tr><tr><td>CRM</td><td>25.0</td><td>Neutral</td><td>191.35</td><td>2026-02-06</td><td>17.24</td><td>21.07</td></tr><tr><td>V</td><td>12.5</td><td>Neutral</td><td>331.58</td><td>2026-02-06</td><td>52.36</td><td>58.94</td></tr><tr><td>UNH</td><td>12.5</td><td>Neutral</td><td>276.65</td><td>2026-02-06</td><td>30.13</td><td>39.08</td></tr><tr><td>META</td><td>12.5</td><td>Neutral</td><td>661.46</td><td>2026-02-06</td><td>44.09</td><td>51.78</td></tr><tr><td>MA</td><td>12.5</td><td>Neutral</td><td>548.74</td><td>2026-02-06</td><td>54.37</td><td>53.28</td></tr><tr><td>DOW</td><td>0.0</td><td>Neutral</td><td>31.78</td><td>2026-02-06</td><td>69.74</td><td>55.14</td></tr><tr><td>GOOGL</td><td>0.0</td><td>Neutral</td><td>322.86</td><td>2026-02-06</td><td>32.60</td><td>55.41</td></tr><tr><td>GS</td><td>-12.5</td><td>Neutral</td><td>928.75</td><td>2026-02-06</td><td>49.99</td><td>51.59</td></tr><tr><td>IBM</td><td>-12.5</td><td>Neutral</td><td>298.93</td><td>2026-02-06</td><td>50.71</td><td>44.69</td></tr><tr><td>HON</td><td>-12.5</td><td>Neutral</td><td>238.38</td><td>2026-02-06</td><td>80.83</td><td>57.79</td></tr><tr><td>MMM</td><td>-12.5</td><td>Neutral</td><td>172.65</td><td>2026-02-06</td><td>75.09</td><td>42.25</td></tr><tr><td>JPM</td><td>-12.5</td><td>Neutral</td><td>322.40</td><td>2026-02-06</td><td>67.19</td><td>71.68</td></tr><tr><td>DIS</td><td>-12.5</td><td>Neutral</td><td>108.70</td><td>2026-02-06</td><td>49.12</td><td>45.46</td></tr><tr><td>NKE</td><td>-12.5</td><td>Neutral</td><td>63.92</td><td>2026-02-06</td><td>53.93</td><td>44.31</td></tr><tr><td>TSLA</td><td>-12.5</td><td>Neutral</td><td>411.11</td><td>2026-02-06</td><td>40.74</td><td>51.58</td></tr><tr><td>BRK-B</td><td>-12.5</td><td>Neutral</td><td>508.09</td><td>2026-02-06</td><td>77.42</td><td>53.41</td></tr><tr><td>AAPL</td><td>-25.0</td><td>Neutral</td><td>278.12</td><td>2026-02-06</td><td>80.76</td><td>75.64</td></tr><tr><td>JNJ</td><td>-25.0</td><td>Neutral</td><td>239.99</td><td>2026-02-06</td><td>94.31</td><td>72.02</td></tr><tr><td>CVX</td><td>-25.0</td><td>Neutral</td><td>180.86</td><td>2026-02-06</td><td>75.66</td><td>74.76</td></tr><tr><td>CSCO</td><td>-25.0</td><td>Neutral</td><td>84.82</td><td>2026-02-06</td><td>77.96</td><td>52.44</td></tr><tr><td>CAT</td><td>-25.0</td><td>Neutral</td><td>726.20</td><td>2026-02-06</td><td>74.58</td><td>54.28</td></tr><tr><td>AMGN</td><td>-37.5</td><td>Bearish</td><td>384.32</td><td>2026-02-06</td><td>82.58</td><td>64.17</td></tr><tr><td>MRK</td><td>-37.5</td><td>Bearish</td><td>121.93</td><td>2026-02-06</td><td>86.25</td><td>75.90</td></tr><tr><td>NVDA</td><td>-37.5</td><td>Bearish</td><td>185.41</td><td>2026-02-06</td><td>53.25</td><td>48.38</td></tr><tr><td>PG</td><td>-37.5</td><td>Bearish</td><td>159.17</td><td>2026-02-06</td><td>85.52</td><td>82.99</td></tr><tr><td>TRV</td><td>-37.5</td><td>Bearish</td><td>301.49</td><td>2026-02-06</td><td>88.39</td><td>71.43</td></tr><tr><td>AXP</td><td>-37.5</td><td>Bearish</td><td>359.15</td><td>2026-02-06</td><td>52.80</td><td>57.75</td></tr><tr><td>VZ</td><td>-37.5</td><td>Bearish</td><td>46.31</td><td>2026-02-06</td><td>80.19</td><td>81.93</td></tr><tr><td>WMT</td><td>-37.5</td><td>Bearish</td><td>131.18</td><td>2026-02-06</td><td>84.74</td><td>60.12</td></tr><tr><td>KO</td><td>-50.0</td><td>Bearish</td><td>79.03</td><td>2026-02-06</td><td>90.43</td><td>94.88</td></tr><tr><td>MCD</td><td>-50.0</td><td>Bearish</td><td>327.16</td><td>2026-02-06</td><td>84.49</td><td>86.75</td></tr><tr><td>HD</td><td>-50.0</td><td>Bearish</td><td>385.15</td><td>2026-02-06</td><td>61.35</td><td>56.06</td></tr><tr><td>BA</td><td>-50.0</td><td>Bearish</td><td>243.03</td><td>2026-02-06</td><td>62.49</td><td>50.63</td></tr></tbody></table></div>
+
+      <div id="tab-global" class="tab-panel">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="label">Bullish</div><div class="value">3</div></div>
+          <div class="stat-card"><div class="label">Neutral</div><div class="value">26</div></div>
+          <div class="stat-card"><div class="label">Bearish</div><div class="value">6</div></div>
+          <div class="stat-card"><div class="label">Data danych</div><div class="value" style="font-size:15px;">2026-08-12</div></div>
+        </div>
+        <div class="grid-2">
+          <div><h3>Najmocniejsze</h3><div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>CAT</td><td>37.5</td><td>Bullish</td><td>855.60</td><td>2026-08-12</td><td>50.22</td><td>45.02</td></tr><tr><td>TSLA</td><td>37.5</td><td>Bullish</td><td>327.51</td><td>2026-08-12</td><td>46.04</td><td>47.05</td></tr><tr><td>GOOGL</td><td>37.5</td><td>Bullish</td><td>343.54</td><td>2026-08-12</td><td>42.20</td><td>58.99</td></tr><tr><td>HD</td><td>12.5</td><td>Neutral</td><td>343.43</td><td>2026-08-12</td><td>47.51</td><td>53.41</td></tr><tr><td>AMZN</td><td>12.5</td><td>Neutral</td><td>267.28</td><td>2026-08-12</td><td>54.67</td><td>52.48</td></tr><tr><td>VZ</td><td>12.5</td><td>Neutral</td><td>46.98</td><td>2026-08-12</td><td>57.74</td><td>56.58</td></tr><tr><td>UNH</td><td>12.5</td><td>Neutral</td><td>405.59</td><td>2026-08-12</td><td>40.40</td><td>15.44</td></tr><tr><td>DOW</td><td>12.5</td><td>Neutral</td><td>30.57</td><td>2026-08-12</td><td>53.98</td><td>51.20</td></tr><tr><td>GS</td><td>0.0</td><td>Neutral</td><td>1037.21</td><td>2026-08-12</td><td>47.77</td><td>35.97</td></tr><tr><td>NVDA</td><td>0.0</td><td>Neutral</td><td>224.09</td><td>2026-08-12</td><td>68.68</td><td>57.81</td></tr></tbody></table></div></div>
+          <div><h3>Najsłabsze</h3><div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>MRK</td><td>-75.0</td><td>Strong Bearish</td><td>132.92</td><td>2026-08-12</td><td>71.30</td><td>61.23</td></tr><tr><td>JNJ</td><td>-37.5</td><td>Bearish</td><td>260.86</td><td>2026-08-12</td><td>57.52</td><td>48.16</td></tr><tr><td>MA</td><td>-37.5</td><td>Bearish</td><td>559.73</td><td>2026-08-12</td><td>48.35</td><td>57.58</td></tr><tr><td>KO</td><td>-37.5</td><td>Bearish</td><td>86.71</td><td>2026-08-12</td><td>56.38</td><td>59.01</td></tr><tr><td>AXP</td><td>-37.5</td><td>Bearish</td><td>344.08</td><td>2026-08-12</td><td>53.90</td><td>59.75</td></tr><tr><td>WMT</td><td>-37.5</td><td>Bearish</td><td>116.01</td><td>2026-08-12</td><td>72.59</td><td>60.65</td></tr><tr><td>AMGN</td><td>-25.0</td><td>Neutral</td><td>416.18</td><td>2026-08-12</td><td>75.43</td><td>62.08</td></tr><tr><td>JPM</td><td>-25.0</td><td>Neutral</td><td>365.18</td><td>2026-08-12</td><td>74.32</td><td>79.21</td></tr><tr><td>MMM</td><td>-25.0</td><td>Neutral</td><td>183.78</td><td>2026-08-12</td><td>72.05</td><td>71.64</td></tr><tr><td>MSFT</td><td>-25.0</td><td>Neutral</td><td>492.43</td><td>2026-08-12</td><td>70.05</td><td>78.15</td></tr></tbody></table></div></div>
+        </div>
+        <div id="tech-global" style="margin-top:18px;"><h3>Pełna lista Global</h3><div class="table-wrap"><table><thead><tr><th>ticker</th><th>combined_score</th><th>sentiment</th><th>last_close</th><th>last_date</th><th>rsi_value</th><th>mfi_value</th></tr></thead><tbody><tr><td>CAT</td><td>37.5</td><td>Bullish</td><td>855.60</td><td>2026-08-12</td><td>50.22</td><td>45.02</td></tr><tr><td>TSLA</td><td>37.5</td><td>Bullish</td><td>327.51</td><td>2026-08-12</td><td>46.04</td><td>47.05</td></tr><tr><td>GOOGL</td><td>37.5</td><td>Bullish</td><td>343.54</td><td>2026-08-12</td><td>42.20</td><td>58.99</td></tr><tr><td>HD</td><td>12.5</td><td>Neutral</td><td>343.43</td><td>2026-08-12</td><td>47.51</td><td>53.41</td></tr><tr><td>AMZN</td><td>12.5</td><td>Neutral</td><td>267.28</td><td>2026-08-12</td><td>54.67</td><td>52.48</td></tr><tr><td>VZ</td><td>12.5</td><td>Neutral</td><td>46.98</td><td>2026-08-12</td><td>57.74</td><td>56.58</td></tr><tr><td>UNH</td><td>12.5</td><td>Neutral</td><td>405.59</td><td>2026-08-12</td><td>40.40</td><td>15.44</td></tr><tr><td>DOW</td><td>12.5</td><td>Neutral</td><td>30.57</td><td>2026-08-12</td><td>53.98</td><td>51.20</td></tr><tr><td>GS</td><td>0.0</td><td>Neutral</td><td>1037.21</td><td>2026-08-12</td><td>47.77</td><td>35.97</td></tr><tr><td>NVDA</td><td>0.0</td><td>Neutral</td><td>224.09</td><td>2026-08-12</td><td>68.68</td><td>57.81</td></tr><tr><td>NKE</td><td>0.0</td><td>Neutral</td><td>40.51</td><td>2026-08-12</td><td>34.24</td><td>46.98</td></tr><tr><td>MCD</td><td>0.0</td><td>Neutral</td><td>275.70</td><td>2026-08-12</td><td>61.41</td><td>47.72</td></tr><tr><td>IBM</td><td>0.0</td><td>Neutral</td><td>235.98</td><td>2026-08-12</td><td>58.50</td><td>73.36</td></tr><tr><td>AAPL</td><td>0.0</td><td>Neutral</td><td>302.25</td><td>2026-08-12</td><td>30.65</td><td>50.86</td></tr><tr><td>CVX</td><td>0.0</td><td>Neutral</td><td>196.60</td><td>2026-08-12</td><td>63.59</td><td>45.22</td></tr><tr><td>BRK-B</td><td>0.0</td><td>Neutral</td><td>510.00</td><td>2026-08-12</td><td>45.59</td><td>65.33</td></tr><tr><td>BA</td><td>0.0</td><td>Neutral</td><td>231.20</td><td>2026-08-12</td><td>56.29</td><td>65.54</td></tr><tr><td>PG</td><td>0.0</td><td>Neutral</td><td>144.08</td><td>2026-08-12</td><td>37.52</td><td>47.84</td></tr><tr><td>TRV</td><td>-12.5</td><td>Neutral</td><td>370.16</td><td>2026-08-12</td><td>41.32</td><td>41.00</td></tr><tr><td>HON</td><td>-12.5</td><td>Neutral</td><td>235.34</td><td>2026-08-12</td><td>43.02</td><td>48.02</td></tr><tr><td>DIS</td><td>-12.5</td><td>Neutral</td><td>103.22</td><td>2026-08-12</td><td>64.83</td><td>65.47</td></tr><tr><td>V</td><td>-12.5</td><td>Neutral</td><td>359.42</td><td>2026-08-12</td><td>42.83</td><td>40.31</td></tr><tr><td>CSCO</td><td>-12.5</td><td>Neutral</td><td>123.88</td><td>2026-08-12</td><td>69.89</td><td>66.46</td></tr><tr><td>META</td><td>-12.5</td><td>Neutral</td><td>578.85</td><td>2026-08-12</td><td>40.14</td><td>54.27</td></tr><tr><td>CRM</td><td>-12.5</td><td>Neutral</td><td>193.32</td><td>2026-08-12</td><td>61.22</td><td>72.90</td></tr><tr><td>AMGN</td><td>-25.0</td><td>Neutral</td><td>416.18</td><td>2026-08-12</td><td>75.43</td><td>62.08</td></tr><tr><td>JPM</td><td>-25.0</td><td>Neutral</td><td>365.18</td><td>2026-08-12</td><td>74.32</td><td>79.21</td></tr><tr><td>MMM</td><td>-25.0</td><td>Neutral</td><td>183.78</td><td>2026-08-12</td><td>72.05</td><td>71.64</td></tr><tr><td>MSFT</td><td>-25.0</td><td>Neutral</td><td>492.43</td><td>2026-08-12</td><td>70.05</td><td>78.15</td></tr><tr><td>JNJ</td><td>-37.5</td><td>Bearish</td><td>260.86</td><td>2026-08-12</td><td>57.52</td><td>48.16</td></tr><tr><td>MA</td><td>-37.5</td><td>Bearish</td><td>559.73</td><td>2026-08-12</td><td>48.35</td><td>57.58</td></tr><tr><td>KO</td><td>-37.5</td><td>Bearish</td><td>86.71</td><td>2026-08-12</td><td>56.38</td><td>59.01</td></tr><tr><td>AXP</td><td>-37.5</td><td>Bearish</td><td>344.08</td><td>2026-08-12</td><td>53.90</td><td>59.75</td></tr><tr><td>WMT</td><td>-37.5</td><td>Bearish</td><td>116.01</td><td>2026-08-12</td><td>72.59</td><td>60.65</td></tr><tr><td>MRK</td><td>-75.0</td><td>Strong Bearish</td><td>132.92</td><td>2026-08-12</td><td>71.30</td><td>61.23</td></tr></tbody></table></div></div>
       </div>
     </section>
   </main>
 
   <footer>
-    <p>Źródła: sentiment_report_20260209_195816.txt, techincals_report_20260209_195742.csv, techincals_zagr_report_20260209_132940.csv.</p>
+    <p>Swetrowo Market Brief &mdash; dane: GPW + global | Źródła: sentiment_report_20260813_153405.txt, techincals_report_20260813_153347.csv, techincals_zagr_report_20260813_153346.csv. Wygenerowano: 2026-08-13 15:34.</p>
   </footer>
 
   <script>
-    const sentimentTimeline = [{"date": "2026-01-27 14:11", "bullish": 4, "bearish": 4, "neutral": 9}, {"date": "2026-01-27 14:38", "bullish": 10, "bearish": 8, "neutral": 13}, {"date": "2026-01-27 16:45", "bullish": 10, "bearish": 6, "neutral": 15}, {"date": "2026-02-02 12:57", "bullish": 11, "bearish": 7, "neutral": 12}, {"date": "2026-02-02 17:08", "bullish": 12, "bearish": 8, "neutral": 10}, {"date": "2026-02-02 18:03", "bullish": 27, "bearish": 15, "neutral": 13}, {"date": "2026-02-03 13:49", "bullish": 2, "bearish": 0, "neutral": 0}, {"date": "2026-02-03 14:30", "bullish": 27, "bearish": 6, "neutral": 19}, {"date": "2026-02-04 09:53", "bullish": 8, "bearish": 5, "neutral": 3}, {"date": "2026-02-04 10:01", "bullish": 9, "bearish": 2, "neutral": 51}, {"date": "2026-02-04 10:20", "bullish": 4, "bearish": 3, "neutral": 55}, {"date": "2026-02-05 10:39", "bullish": 4, "bearish": 0, "neutral": 58}, {"date": "2026-02-09 19:22", "bullish": 2, "bearish": 3, "neutral": 57}, {"date": "2026-02-09 19:58", "bullish": 3, "bearish": 3, "neutral": 56}];
+    const sentimentTimeline = [{"date": "2026-02-17 12:50", "bullish": 0, "bearish": 0, "neutral": 0}, {"date": "2026-02-17 12:53", "bullish": 0, "bearish": 0, "neutral": 0}, {"date": "2026-02-17 12:58", "bullish": 0, "bearish": 0, "neutral": 0}, {"date": "2026-02-17 18:21", "bullish": 7, "bearish": 5, "neutral": 50}, {"date": "2026-02-18 08:53", "bullish": 6, "bearish": 7, "neutral": 49}, {"date": "2026-02-20 12:09", "bullish": 5, "bearish": 4, "neutral": 53}, {"date": "2026-02-23 14:06", "bullish": 5, "bearish": 2, "neutral": 55}, {"date": "2026-02-26 11:23", "bullish": 4, "bearish": 6, "neutral": 52}, {"date": "2026-02-26 11:33", "bullish": 0, "bearish": 0, "neutral": 0}, {"date": "2026-02-27 09:04", "bullish": 8, "bearish": 0, "neutral": 54}, {"date": "2026-03-01 09:07", "bullish": 7, "bearish": 2, "neutral": 53}, {"date": "2026-03-17 18:57", "bullish": 7, "bearish": 3, "neutral": 52}, {"date": "2026-04-12 18:46", "bullish": 3, "bearish": 1, "neutral": 58}, {"date": "2026-04-22 18:11", "bullish": 3, "bearish": 0, "neutral": 59}, {"date": "2026-05-21 14:25", "bullish": 5, "bearish": 3, "neutral": 54}, {"date": "2026-05-23 18:13", "bullish": 4, "bearish": 4, "neutral": 54}, {"date": "2026-06-19 14:33", "bullish": 6, "bearish": 3, "neutral": 53}, {"date": "2026-06-19 14:36", "bullish": 4, "bearish": 2, "neutral": 56}, {"date": "2026-08-13 15:26", "bullish": 4, "bearish": 1, "neutral": 57}, {"date": "2026-08-13 15:34", "bullish": 6, "bearish": 0, "neutral": 56}];
     const chartEmpty = document.getElementById('chartEmpty');
     const chartCanvas = document.getElementById('sentimentChart');
 
@@ -775,11 +965,66 @@
           entry.target.classList.add('visible');
         }
       });
-    }, { threshold: 0.2 });
+    }, { threshold: 0.15 });
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
     drawSentimentChart(sentimentTimeline);
     window.addEventListener('resize', () => drawSentimentChart(sentimentTimeline));
+
+    /* === SORTOWANIE TABEL === */
+    function makeSortable(table) {
+      const headers = table.querySelectorAll('th[data-col]');
+      headers.forEach(th => {
+        th.classList.add('sortable');
+        th.addEventListener('click', () => {
+          const col = parseInt(th.dataset.col);
+          const asc = th.classList.contains('sort-asc');
+          headers.forEach(h => h.classList.remove('sort-asc', 'sort-desc'));
+          th.classList.add(asc ? 'sort-desc' : 'sort-asc');
+          const tbody = table.querySelector('tbody');
+          const rows  = Array.from(tbody.querySelectorAll('tr'));
+          rows.sort((a, b) => {
+            const av = a.cells[col]?.innerText.trim() || '';
+            const bv = b.cells[col]?.innerText.trim() || '';
+            const an = parseFloat(av.replace(/[^0-9.-]/g, ''));
+            const bn = parseFloat(bv.replace(/[^0-9.-]/g, ''));
+            if (!isNaN(an) && !isNaN(bn)) return asc ? bn - an : an - bn;
+            return asc ? bv.localeCompare(av, 'pl') : av.localeCompare(bv, 'pl');
+          });
+          rows.forEach(r => tbody.appendChild(r));
+        });
+      });
+    }
+
+    document.querySelectorAll('table').forEach(t => {
+      const ths = t.querySelectorAll('th');
+      ths.forEach((th, i) => { if (!th.dataset.col) th.dataset.col = i; });
+      makeSortable(t);
+    });
+
+    /* === ZAKŁADKI === */
+    function switchTab(e, panelId) {
+      const section = e.target.closest('section');
+      section.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      section.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      e.target.classList.add('active');
+      document.getElementById(panelId)?.classList.add('active');
+    }
+
+    /* === COUNTDOWN DO ODŚWIEżENIA === */
+    (function() {
+      const totalSec = 5 * 60;
+      let remaining = totalSec;
+      const el = document.getElementById('countdownVal');
+      if (!el) return;
+      setInterval(() => {
+        remaining--;
+        if (remaining <= 0) { location.reload(); return; }
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        el.textContent = m + ':' + String(s).padStart(2, '0');
+      }, 1000);
+    })();
   </script>
 </body>
 </html>
