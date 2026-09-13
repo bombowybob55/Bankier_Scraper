@@ -3,8 +3,11 @@ name: Update data and deploy to GitHub Pages
 on:
   schedule:
     # Runs at both 18:00 and 19:00 UTC on weekdays; the "check time" step
-    # below only lets the run continue if it's currently ~20:00 in Warsaw,
-    # so this covers both CET (winter) and CEST (summer) without manual changes.
+    # below only lets the run continue once it's ~19:00 or later in Warsaw,
+    # so this covers both CET (winter) and CEST (summer) without manual
+    # changes. GitHub does not guarantee scheduled runs fire on time and can
+    # delay them by hours, so the check accepts a wide window (>=19) rather
+    # than an exact hour, to tolerate that drift.
     - cron: "0 18 * * 1-5"
     - cron: "0 19 * * 1-5"
   workflow_dispatch: {}
@@ -25,9 +28,9 @@ jobs:
       - name: Check Warsaw local time
         id: check
         run: |
-          hour=$(TZ='Europe/Warsaw' date +%H)
+          hour=$(TZ='Europe/Warsaw' date +%-H)
           echo "Warsaw hour is $hour"
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$hour" = "20" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || [ "$hour" -ge 19 ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
